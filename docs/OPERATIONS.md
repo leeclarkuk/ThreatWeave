@@ -14,9 +14,12 @@ To keep models in a repository, point `--data` at a directory in that repository
 Back up by copying the directory. Deleting a project in the UI removes its directory and revisions; it asks first and cannot be undone.
 
 ## Recovery
+- Every successful write keeps the previous good version as `model.json.bak`. Writes are flushed to disk and atomically replaced, so a crash leaves either the old file or the new one.
+- If `model.json` is damaged (torn write by another tool, disk fault, bad manual edit), the project is listed on the home page as **Cannot be opened**, with the reason. If a valid backup exists, **Restore previous version** (or `threatweave restore <project-id> --data DIR`) puts it back and keeps the damaged file as `model.json.damaged`. A backup that does not validate is never restored. You lose only the last write.
 - A save that fails validation is refused with the reasons; the file on disk is untouched.
 - A run left `running` by a crash or restart is marked `failed (interrupted)` on the next start.
-- If a file is edited by hand and no longer validates, the project is skipped in the list and `threatweave validate <file>` prints why. The server never deletes it.
+- Temp files from interrupted writes are removed on start (only those older than a minute).
+- Several processes can write the same project (web server, CLI, MCP): writes take a lock file `<project>/.lock`. A lock left by a dead process, or older than 30 seconds, is taken over automatically. If a writer waits 15 seconds it fails with "locked by another process" and changes nothing. The lock is advisory and local: do not put the data directory on a network share.
 
 ## Container
 `docker compose up --build` publishes `127.0.0.1:4317` only. The data volume is `threatweave-data`. To analyse a local folder, uncomment the read-only bind mount in `docker-compose.yml`; set the path in the Source tab to `/sources/repo`. `THREATWEAVE_SOURCE_ROOTS` limits which directories can be scanned.
@@ -36,7 +39,7 @@ Kubernetes is not required and no manifests are provided.
 | `THREATWEAVE_BIND_ACK=1` | Suppress the non-loopback bind warning (set in the container image) |
 
 ## MCP
-`threatweave mcp --data DIR` speaks MCP over stdio. Tools: `list_projects`, `get_model_summary`, `validate_model`, `list_review_items`, `list_proposals`, `list_revisions`, `compare_models`, `submit_proposals`. There is deliberately no tool to accept or reject anything, change a status, or edit the model. `submit_proposals` validates input like AI output and stores pending proposals; file evidence cannot be asserted through MCP so they arrive as hypotheses. The MCP process and a running web server can write the same project; a simultaneous write can lose an update.
+`threatweave mcp --data DIR` speaks MCP over stdio. Tools: `list_projects`, `get_model_summary`, `validate_model`, `list_review_items`, `list_proposals`, `list_revisions`, `compare_models`, `submit_proposals`. There is deliberately no tool to accept or reject anything, change a status, or edit the model. `submit_proposals` validates input like AI output and stores pending proposals; file evidence cannot be asserted through MCP so they arrive as hypotheses. The MCP process, the CLI and a running web server can write the same project; writes are serialised by the cross-process lock.
 
 Example client configuration:
 ```json

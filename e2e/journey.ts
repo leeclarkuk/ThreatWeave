@@ -251,6 +251,22 @@ async function main() {
     ok(a.endsWith('\n') && a.indexOf('"elements"') < a.indexOf('"threats"'), 'stable key order');
   });
 
+  await step('D3 a damaged project file is shown (not hidden) and can be restored from its backup', async () => {
+    const f = join(data, 'projects', id, 'model.json');
+    const good = readFileSync(f, 'utf8');
+    ok(existsSync(f + '.bak'), 'a backup of the previous version exists');
+    writeFileSync(f, good.slice(0, 40)); // a torn write by some other tool
+    await page.goto(BASE);
+    await page.getByText(/cannot be opened/i).first().waitFor();
+    ok(await page.getByText(/valid backup of the previous version exists/i).isVisible(), 'recovery is explained');
+    await page.getByRole('button', { name: 'Restore previous version' }).click();
+    await page.getByRole('link', { name: 'Orders platform' }).waitFor();
+    ok(existsSync(f + '.damaged'), 'the damaged file was kept, not overwritten');
+    eq((await model(id)).elements.length, 4, 'project restored with its components');
+    await page.goto(`${BASE}/#/p/${id}/threats`);
+    await page.getByRole('button', { name: 'Forged order callbacks' }).waitFor();
+  });
+
   /* ---------- E. export / import ---------- */
   await step('E1 export native JSON and Markdown; the CLI validates the exported file', async () => {
     await nav(page, 'Report');
@@ -336,7 +352,7 @@ async function main() {
   });
   await step('F4 review shows the flagged assumption, threat, mitigation and boundary with the reason and trace', async () => {
     await page.getByRole('button', { name: /Review what changed/ }).click();
-    await page.getByRole('heading', { name: /Needs review/ }).waitFor();
+    await page.locator('#main').getByRole('heading', { name: /Needs review/ }).waitFor();
     for (const t of ['only reachable from the backend network', 'Unauthorised stock manipulation', 'Keep inventory off published ports', 'Compose network "backend"']) ok(await page.getByText(t).first().isVisible(), `flagged: ${t}`);
     await page.getByText('Why was this flagged?').first().click();
     ok(await page.getByText(/Deterministic: raised by comparing/).first().isVisible(), 'trace explains it is deterministic');

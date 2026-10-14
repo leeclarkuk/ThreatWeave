@@ -9,11 +9,13 @@ Temporary progress notes. Durable lessons live in `CLAUDE.md`.
 - Web: canvas and table, inspector, threats, assumptions, mitigations with attestation dialogs, evidence, review with grouped items and proposals, compare, source, settings, report, import preview, undo and redo, light and dark.
 - CLI and MCP server sharing the same core. Docs, Dockerfile and compose file, CI workflow.
 - Browser journey (`npm run e2e`): see `docs/VERIFICATION.md` for the latest result.
+- Stabilisation milestone: cross-process locking, crash-safe writes, backup and restore, anchored evidence invalidation, deterministic example, clean-clone `npm run verify`. All covered by tests written first.
 
 ## Remaining and known gaps
 - Not verified live: both AI adapters (no credentials in the build environment). Run `npm run live:check`.
-- Not verified: the Docker image build (no Docker daemon). The runtime layout was simulated with production dependencies only.
-- No assistive-technology or user testing. No cross-process file lock for MCP/CLI writes next to a running server.
+- Not verified: the Docker image build (no Docker daemon). The runtime layout is exercised by `npm run verify` with production dependencies only.
+- Unanchored evidence (documents, accepted AI citations) is only checked at file level. Candidate: assign an anchor at acceptance time by locating the cited lines inside a component's block.
+- No assistive-technology or user testing. The file lock is advisory, local, and tested on Linux only.
 - Source support is Compose and Kubernetes only. NetworkPolicy is noted, not evaluated.
 - No schema migrations yet (only schema version 1 exists).
 - Large-model canvas performance and layout quality untested beyond tens of components.

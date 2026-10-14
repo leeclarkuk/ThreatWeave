@@ -1,7 +1,7 @@
 {
-  "ran": "2026-10-14T09:16:10.779Z",
+  "ran": "2026-10-14T09:34:56.479Z",
   "note": "AI steps used a simulated provider server, not a live endpoint.",
-  "passed": 37,
+  "passed": 38,
   "failed": 0,
   "results": [
     {
@@ -54,6 +54,10 @@
     },
     {
       "step": "D2 saved file is deterministic: reloading and saving again changes nothing",
+      "ok": true
+    },
+    {
+      "step": "D3 a damaged project file is shown (not hidden) and can be restored from its backup",
       "ok": true
     },
     {

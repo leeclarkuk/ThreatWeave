@@ -15,7 +15,7 @@ All carry stable ids with a type prefix and are serialised sorted by id.
 | `assumptions` | `asm_` | Assumptions and open questions, with `relatesTo` references |
 | `threats` | `thr_` | Source, preconditions, action, consequence, STRIDE, `targets`, likelihood and impact with rationale, `evidenceStrength`, `basis`, `status` |
 | `mitigations` | `mit_` | `status`, `statusSetBy`, `threatIds`, `assumptionIds`, verification plan and evidence |
-| `evidence` | `ev_` | Kind, summary, path, line range, quote, revision, content hash, `stale` |
+| `evidence` | `ev_` | Kind, summary, path, line range, quote, revision, content hash, optional `anchor` (source key it was captured for), `stale` and `staleReason` |
 | `sources` | `src_` | Captured directory snapshots: revision digest, VCS revision, file hashes |
 | `proposals` | `prp_` | Pending, accepted, rejected suggestions with reasoning and verified evidence |
 | `reviewItems` | `rvw_` | What needs review, why, and the relationship trace |

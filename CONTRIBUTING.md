@@ -5,6 +5,8 @@
 npm install
 npm run build        # tsc project builds, then the Vite web build
 npm test             # vitest
+npm run check        # build, tests, simulated evaluation, example validation
+npm run verify       # clean clone of the committed tree: npm ci, build, tests, production-only runtime, tracked files unchanged
 npm run e2e          # real Chromium against a real server (needs a build; see CLAUDE.md for CHROMIUM_PATH)
 npm run dev:web      # Vite dev server on :5173, proxies /api to a server on :4317
 node packages/cli/dist/bin.js serve   # the API server

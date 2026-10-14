@@ -33,6 +33,10 @@ node packages/cli/dist/bin.js serve        # http://localhost:4317, data in ./.t
 
 To start your own model, use **New model** on the home page, or import a `.threatweave.json` or Threat Composer `.tc.json` file.
 
+### Reproducible install
+
+`.nvmrc` pins Node 22 (tested with 22.22.0); `engines` requires 20.3 or later and `engine-strict` is on. Use `npm ci`, which fails if `package-lock.json` and `package.json` disagree. `npm run check` builds, tests and runs the simulated evaluation. `npm run verify` clones the **committed** tree into an empty directory and proves it installs, builds, passes its tests, runs with production dependencies only, and leaves tracked files unchanged (needs registry access).
+
 ### Container
 
 ```bash
@@ -80,9 +84,9 @@ Read these before you rely on the output.
 - **Not an attack-path tool.** Review flags follow explicit links (a flagged component leads to threats and assumptions that reference it, its flows and its boundaries). Anything you did not link is not found. Coverage is incomplete by design.
 - **Source input is narrow.** Docker Compose and Kubernetes manifests only (Deployment, StatefulSet, DaemonSet, Service, Ingress). No Terraform, CloudFormation, Helm, Kustomize, or application source. NetworkPolicy is noted but not evaluated. Exposure from published ports means reachable from the host's network, which may or may not be the internet.
 - **Heuristics.** Data stores are recognised from image names; flows are inferred from environment URLs and `depends_on`; these are marked as inferred.
-- **Evidence staleness is textual.** Evidence goes stale when its quoted text is gone from the file. A semantic change that leaves the text intact is not detected.
+- **Evidence staleness is textual.** Scanned evidence is tied to the component it was captured for and goes stale when that component's cited text is edited or moves, or the component is renamed or removed; whitespace, comments and unrelated edits do not trigger it. A semantic change that leaves the cited text intact is not detected. Evidence without an anchor (documents, accepted AI citations) is checked at file level only: it goes stale if the file or the quote disappears, not if the quote moves to unrelated content. Staleness is cleared only by a person.
 - **AI quality is unproven.** The small evaluation set can show failure modes, not general quality. See docs/AI.md.
-- **Single user, local.** No authentication, no multi-user editing, no real-time collaboration. Two processes writing the same project at the same instant can lose an update (the web app detects and merges its own conflicts; the MCP server and CLI do not take a cross-process lock).
+- **Single user, local.** No authentication, no multi-user editing, no real-time collaboration. Writes from the web server, CLI and MCP server are serialised with a cross-process lock and are crash-safe (flushed to disk, atomically replaced, previous version kept as `model.json.bak`); this was tested with eight processes making 320 concurrent updates. The lock is advisory and local: it does not protect a project directory on a network share, or a tool that edits the file without using ThreatWeave.
 - **Credentials are stored in plaintext** in the data directory (mode 0600) if you save them in the app. Prefer environment variables.
 - **Threat Composer round trips are not lossless.** Import keeps threats, mitigations, assumptions, links and ids; the architecture images, brainstorm notes and unknown fields are not converted. Export drops structure, judgements, evidence and provenance and tells you so.
 - **Accessibility.** An automated audit (axe-core) and a keyboard walkthrough pass on the main views; there has been no testing with assistive technology or users.
