@@ -1,0 +1,37 @@
+# DEMONSTRATION CONTENT: "Northwind Shop" is a fictional system used to demo ThreatWeave.
+services:
+  web:
+    image: nginx:1.27
+    ports:
+      - "443:8443"
+    networks: [frontend]
+    depends_on: [api]
+  api:
+    build: ./api
+    environment:
+      DATABASE_URL: postgres://shop:change-me@db:5432/shop
+      INVENTORY_URL: http://inventory:9000
+    networks: [frontend, backend]
+    depends_on: [db, inventory]
+  inventory:
+    build: ./inventory
+    expose:
+      - "9000"
+    ports:
+      - "9000:9000"   # added for debugging the stock sync
+    environment:
+      REDIS_URL: redis://cache:6379
+    networks: [backend]
+  db:
+    image: postgres:16
+    volumes:
+      - dbdata:/var/lib/postgresql/data
+    networks: [backend]
+  cache:
+    image: redis:7
+    networks: [backend]
+networks:
+  frontend: {}
+  backend: {}
+volumes:
+  dbdata: {}

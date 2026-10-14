@@ -1,0 +1,6 @@
+node_modules
+dist
+*.tsbuildinfo
+.threatweave-data
+coverage
+test-results
