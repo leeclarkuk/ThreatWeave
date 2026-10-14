@@ -53,15 +53,19 @@ export function markStaleEvidence(model: Model, files: SourceFileInput[], curren
   return { model: next, count };
 }
 
+export function buildSource(files: SourceFileInput[], o: { label: string; revision: string; vcsRevision?: string | undefined }): Source {
+  return {
+    id: `src_${slug(o.label, 20)}-${shortHash(o.revision).slice(0, 6)}`, kind: 'directory-snapshot', label: o.label, revision: o.revision,
+    ...(o.vcsRevision ? { vcsRevision: o.vcsRevision } : {}), capturedAt: nowIso(),
+    files: files.map((f) => ({ path: f.path, hash: f.hash, bytes: Buffer_byteLength(f.content) })).sort((a, b) => a.path.localeCompare(b.path)),
+  };
+}
+
 /** Merge a deterministic extraction into the model, keyed by stable source keys. Human edits and links survive. */
 export function applyExtraction(model: Model, ex: Extraction, files: SourceFileInput[], opts: SyncOptions): { model: Model; stale: number } {
   const next = clone(model);
   const at = nowIso();
-  const src: Source = {
-    id: `src_${slug(opts.label, 20)}-${shortHash(opts.revision).slice(0, 6)}`, kind: 'directory-snapshot', label: opts.label,
-    revision: opts.revision, ...(opts.vcsRevision ? { vcsRevision: opts.vcsRevision } : {}), capturedAt: at,
-    files: files.map((f) => ({ path: f.path, hash: f.hash, bytes: Buffer_byteLength(f.content) })).sort((a, b) => a.path.localeCompare(b.path)),
-  };
+  const src = buildSource(files, opts);
   if (!next.sources.some((s) => s.id === src.id)) next.sources.push(src);
   const idOfKey = (k: string) => derivedId('element', k);
 

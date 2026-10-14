@@ -1,0 +1,156 @@
+{
+  "ran": "2026-10-14T09:16:10.779Z",
+  "note": "AI steps used a simulated provider server, not a live endpoint.",
+  "passed": 37,
+  "failed": 0,
+  "results": [
+    {
+      "step": "A1 keyboard only: Tab to the name field, create a model with Enter, no AI credentials",
+      "ok": true
+    },
+    {
+      "step": "A2 keyboard only: switch section (Alt+2), focus the add field with \"/\", add a threat with Enter",
+      "ok": true
+    },
+    {
+      "step": "B1 add components on the canvas, rename them in the inspector",
+      "ok": true
+    },
+    {
+      "step": "B2 draw a data flow by dragging between handles (canvas)",
+      "ok": true
+    },
+    {
+      "step": "B3 the table view offers the same operations without a pointer: add flow, add boundary, set membership",
+      "ok": true
+    },
+    {
+      "step": "B4 set exposure and flow properties; relationships stay consistent",
+      "ok": true
+    },
+    {
+      "step": "B5 add a trust boundary from the canvas toolbar (no table needed)",
+      "ok": true
+    },
+    {
+      "step": "C1 complete a threat: statement fields, targets from the shared model, judgement with reasons",
+      "ok": true
+    },
+    {
+      "step": "C2 add a mitigation from the threat; implemented and verified need attestation and evidence",
+      "ok": true
+    },
+    {
+      "step": "C3 assumptions and questions link to model elements",
+      "ok": true
+    },
+    {
+      "step": "C4 undo and redo reverse a core edit",
+      "ok": true
+    },
+    {
+      "step": "D1 data survives a page reload and a server restart",
+      "ok": true
+    },
+    {
+      "step": "D2 saved file is deterministic: reloading and saving again changes nothing",
+      "ok": true
+    },
+    {
+      "step": "E1 export native JSON and Markdown; the CLI validates the exported file",
+      "ok": true
+    },
+    {
+      "step": "E2 Threat Composer export is lossy and says so before download",
+      "ok": true
+    },
+    {
+      "step": "E3 import a Threat Composer file: preview shows converted and unsupported content, ids preserved",
+      "ok": true
+    },
+    {
+      "step": "E4 a malformed import is rejected safely",
+      "ok": true
+    },
+    {
+      "step": "F1 open the demonstration; it is clearly labelled",
+      "ok": true
+    },
+    {
+      "step": "F2 selecting a threat highlights the architecture elements it affects; selecting a component shows its reasoning",
+      "ok": true
+    },
+    {
+      "step": "F3 scan a newer source revision (preview) and sync it: no provider contacted",
+      "ok": true
+    },
+    {
+      "step": "F4 review shows the flagged assumption, threat, mitigation and boundary with the reason and trace",
+      "ok": true
+    },
+    {
+      "step": "F5 the canvas marks flagged components without relying on colour",
+      "ok": true
+    },
+    {
+      "step": "F6 close a review item with a rationale; it records a decision and stays closed after re-sync",
+      "ok": true
+    },
+    {
+      "step": "F7 proposals: edit then accept, dependent mitigation, reject with reason; nothing auto-accepted",
+      "ok": true
+    },
+    {
+      "step": "F9 \"Show on diagram\" leaves Review and highlights the connected components",
+      "ok": true
+    },
+    {
+      "step": "F8 compare two revisions in the UI shows the same deterministic change",
+      "ok": true
+    },
+    {
+      "step": "G1 configure a provider (simulated endpoint); the model identifier is configuration, not code",
+      "ok": true
+    },
+    {
+      "step": "G2 AI analysis: disclosure names the host and files; sending requires explicit confirmation",
+      "ok": true
+    },
+    {
+      "step": "G3 proposal shows reasoning, verified evidence and the assumed-vs-observed split; accept keeps AI provenance",
+      "ok": true
+    },
+    {
+      "step": "G4 reanalysis preserves human decisions: rejected stays rejected, accepted is not duplicated",
+      "ok": true
+    },
+    {
+      "step": "G5 provider failure leaves the project usable and says what happened",
+      "ok": true
+    },
+    {
+      "step": "G6 malformed provider output is rejected safely",
+      "ok": true
+    },
+    {
+      "step": "G7 cancellation stops the run, leaves the project intact, and does not retry",
+      "ok": true
+    },
+    {
+      "step": "H1 automated accessibility audit (axe-core) of the main views has no serious or critical violations",
+      "ok": true
+    },
+    {
+      "step": "H2 responsive: no horizontal page scroll at tablet and phone widths; inspector becomes a drawer",
+      "ok": true
+    },
+    {
+      "step": "H3 manual modelling made no network requests beyond the local server",
+      "ok": true
+    },
+    {
+      "step": "H4 no uncaught page errors",
+      "ok": true
+    }
+  ]
+}

@@ -1,0 +1,931 @@
+{
+  "format": "threatweave/model",
+  "schemaVersion": 1,
+  "id": "northwind-demo",
+  "name": "Northwind Shop (demonstration)",
+  "description": "Fictional web shop used to demonstrate ThreatWeave. Not an analysis of any real system.",
+  "example": true,
+  "systems": [
+    {
+      "id": "sys_northwind-shop-demonstra-df10",
+      "name": "Northwind Shop (demonstration)",
+      "description": "A fictional web shop: TLS-terminating web tier, an API, an internal inventory service, Postgres and Redis.",
+      "notes": ""
+    }
+  ],
+  "elements": [
+    {
+      "id": "el_docker-compose-yml-a-0101",
+      "kind": "process",
+      "name": "api",
+      "description": "Compose service \"api\" defined in docker-compose.yml.",
+      "technology": "build: ./api",
+      "exposure": "internal",
+      "tags": [],
+      "properties": {
+        "source.file": "docker-compose.yml"
+      },
+      "basis": "observed",
+      "provenance": {
+        "origin": "source-scan",
+        "actor": "Example author",
+        "at": "2026-10-14T09:12:54Z"
+      },
+      "sourceKey": "compose:docker-compose.yml:api",
+      "evidenceIds": [
+        "ev_docker-compose-yml-1-1c43"
+      ]
+    },
+    {
+      "id": "el_docker-compose-yml-c-0704",
+      "kind": "actor",
+      "name": "External clients",
+      "description": "Anything able to reach a published host port. Derived from port publishing, not observed traffic.",
+      "technology": "",
+      "exposure": "external",
+      "tags": [
+        "derived"
+      ],
+      "properties": {
+        "source.file": "docker-compose.yml"
+      },
+      "basis": "observed",
+      "provenance": {
+        "origin": "source-scan",
+        "actor": "Example author",
+        "at": "2026-10-14T09:12:54Z"
+      },
+      "sourceKey": "compose:docker-compose.yml:@clients",
+      "evidenceIds": [
+        "ev_docker-compose-yml-6-0efe"
+      ]
+    },
+    {
+      "id": "el_docker-compose-yml-c-1452",
+      "kind": "datastore",
+      "name": "cache",
+      "description": "Compose service \"cache\" defined in docker-compose.yml.",
+      "technology": "redis:7",
+      "exposure": "internal",
+      "tags": [],
+      "properties": {
+        "source.file": "docker-compose.yml"
+      },
+      "basis": "observed",
+      "provenance": {
+        "origin": "source-scan",
+        "actor": "Example author",
+        "at": "2026-10-14T09:12:54Z"
+      },
+      "sourceKey": "compose:docker-compose.yml:cache",
+      "evidenceIds": [
+        "ev_docker-compose-yml-2-0a56"
+      ]
+    },
+    {
+      "id": "el_docker-compose-yml-d-190a",
+      "kind": "datastore",
+      "name": "db",
+      "description": "Compose service \"db\" defined in docker-compose.yml.",
+      "technology": "postgres:16",
+      "exposure": "internal",
+      "tags": [],
+      "properties": {
+        "source.file": "docker-compose.yml"
+      },
+      "basis": "observed",
+      "provenance": {
+        "origin": "source-scan",
+        "actor": "Example author",
+        "at": "2026-10-14T09:12:54Z"
+      },
+      "sourceKey": "compose:docker-compose.yml:db",
+      "evidenceIds": [
+        "ev_docker-compose-yml-2-1d51"
+      ]
+    },
+    {
+      "id": "el_docker-compose-yml-i-008b",
+      "kind": "process",
+      "name": "inventory",
+      "description": "Compose service \"inventory\" defined in docker-compose.yml.",
+      "technology": "build: ./inventory",
+      "exposure": "internal",
+      "tags": [],
+      "properties": {
+        "expose": "declared (container-to-container only)",
+        "source.file": "docker-compose.yml"
+      },
+      "basis": "observed",
+      "provenance": {
+        "origin": "source-scan",
+        "actor": "Example author",
+        "at": "2026-10-14T09:12:54Z"
+      },
+      "sourceKey": "compose:docker-compose.yml:inventory",
+      "evidenceIds": [
+        "ev_docker-compose-yml-1-05e6"
+      ]
+    },
+    {
+      "id": "el_docker-compose-yml-w-0997",
+      "kind": "process",
+      "name": "web",
+      "description": "Compose service \"web\" defined in docker-compose.yml.",
+      "technology": "nginx:1.27",
+      "exposure": "external",
+      "tags": [],
+      "properties": {
+        "exposure.reason": "published ports: 443:8443",
+        "source.file": "docker-compose.yml"
+      },
+      "basis": "observed",
+      "provenance": {
+        "origin": "source-scan",
+        "actor": "Example author",
+        "at": "2026-10-14T09:12:54Z"
+      },
+      "sourceKey": "compose:docker-compose.yml:web",
+      "evidenceIds": [
+        "ev_docker-compose-yml-4-05dc",
+        "ev_docker-compose-yml-6-0efe"
+      ]
+    }
+  ],
+  "flows": [
+    {
+      "id": "flow_docker-compose-yml-f-05d9",
+      "from": "el_docker-compose-yml-a-0101",
+      "to": "el_docker-compose-yml-d-190a",
+      "label": "DATABASE_URL",
+      "protocol": "postgres",
+      "description": "",
+      "authenticated": "unknown",
+      "encrypted": "unknown",
+      "assetIds": [
+        "ast_customer-personal-data-2c03"
+      ],
+      "properties": {},
+      "basis": "inferred",
+      "provenance": {
+        "origin": "source-scan",
+        "actor": "Example author",
+        "at": "2026-10-14T09:12:54Z"
+      },
+      "sourceKey": "compose:docker-compose.yml:flow:api->db",
+      "evidenceIds": [
+        "ev_docker-compose-yml-1-0a71"
+      ]
+    },
+    {
+      "id": "flow_docker-compose-yml-f-066b",
+      "from": "el_docker-compose-yml-i-008b",
+      "to": "el_docker-compose-yml-c-1452",
+      "label": "REDIS_URL",
+      "protocol": "redis",
+      "description": "",
+      "authenticated": "unknown",
+      "encrypted": "unknown",
+      "assetIds": [],
+      "properties": {},
+      "basis": "inferred",
+      "provenance": {
+        "origin": "source-scan",
+        "actor": "Example author",
+        "at": "2026-10-14T09:12:54Z"
+      },
+      "sourceKey": "compose:docker-compose.yml:flow:inventory->cache",
+      "evidenceIds": [
+        "ev_docker-compose-yml-2-0e3f"
+      ]
+    },
+    {
+      "id": "flow_docker-compose-yml-f-06aa",
+      "from": "el_docker-compose-yml-w-0997",
+      "to": "el_docker-compose-yml-a-0101",
+      "label": "depends_on",
+      "protocol": "",
+      "description": "",
+      "authenticated": "unknown",
+      "encrypted": "unknown",
+      "assetIds": [],
+      "properties": {},
+      "basis": "inferred",
+      "provenance": {
+        "origin": "source-scan",
+        "actor": "Example author",
+        "at": "2026-10-14T09:12:54Z"
+      },
+      "sourceKey": "compose:docker-compose.yml:flow:web->api",
+      "evidenceIds": [
+        "ev_docker-compose-yml-8-1624"
+      ]
+    },
+    {
+      "id": "flow_docker-compose-yml-f-1b7a",
+      "from": "el_docker-compose-yml-a-0101",
+      "to": "el_docker-compose-yml-i-008b",
+      "label": "INVENTORY_URL",
+      "protocol": "http",
+      "description": "",
+      "authenticated": "unknown",
+      "encrypted": "no",
+      "assetIds": [
+        "ast_stock-levels-095a"
+      ],
+      "properties": {},
+      "basis": "inferred",
+      "provenance": {
+        "origin": "source-scan",
+        "actor": "Example author",
+        "at": "2026-10-14T09:12:54Z"
+      },
+      "sourceKey": "compose:docker-compose.yml:flow:api->inventory",
+      "evidenceIds": [
+        "ev_docker-compose-yml-1-0f76"
+      ]
+    },
+    {
+      "id": "flow_docker-compose-yml-f-1c24",
+      "from": "el_docker-compose-yml-c-0704",
+      "to": "el_docker-compose-yml-w-0997",
+      "label": "published port",
+      "protocol": "",
+      "description": "",
+      "authenticated": "unknown",
+      "encrypted": "unknown",
+      "assetIds": [],
+      "properties": {},
+      "basis": "inferred",
+      "provenance": {
+        "origin": "source-scan",
+        "actor": "Example author",
+        "at": "2026-10-14T09:12:54Z"
+      },
+      "sourceKey": "compose:docker-compose.yml:flow:@clients->web",
+      "evidenceIds": [
+        "ev_docker-compose-yml-6-0efe"
+      ]
+    }
+  ],
+  "boundaries": [
+    {
+      "id": "tb_docker-compose-yml-n-1e6c",
+      "name": "Compose network \"backend\"",
+      "kind": "network",
+      "trust": "trusted",
+      "description": "Services attached to the backend network in docker-compose.yml. Network isolation is a configuration observation, not a verified control.",
+      "memberIds": [
+        "el_docker-compose-yml-a-0101",
+        "el_docker-compose-yml-c-1452",
+        "el_docker-compose-yml-d-190a",
+        "el_docker-compose-yml-i-008b"
+      ],
+      "properties": {},
+      "basis": "inferred",
+      "provenance": {
+        "origin": "source-scan",
+        "actor": "Example author",
+        "at": "2026-10-14T09:12:54Z"
+      },
+      "sourceKey": "compose:docker-compose.yml:net:backend",
+      "evidenceIds": [
+        "ev_docker-compose-yml-1-1ce1"
+      ]
+    },
+    {
+      "id": "tb_docker-compose-yml-n-1f65",
+      "name": "Compose network \"frontend\"",
+      "kind": "network",
+      "trust": "trusted",
+      "description": "Services attached to the frontend network in docker-compose.yml. Network isolation is a configuration observation, not a verified control.",
+      "memberIds": [
+        "el_docker-compose-yml-a-0101",
+        "el_docker-compose-yml-w-0997"
+      ],
+      "properties": {},
+      "basis": "inferred",
+      "provenance": {
+        "origin": "source-scan",
+        "actor": "Example author",
+        "at": "2026-10-14T09:12:54Z"
+      },
+      "sourceKey": "compose:docker-compose.yml:net:frontend",
+      "evidenceIds": [
+        "ev_docker-compose-yml-4-0922"
+      ]
+    },
+    {
+      "id": "tb_docker-compose-yml-p-188a",
+      "name": "Public side of published ports",
+      "kind": "network",
+      "trust": "untrusted",
+      "description": "Where clients reaching published ports sit. Whether that is the internet or a private network depends on the host and is not known from the file.",
+      "memberIds": [
+        "el_docker-compose-yml-c-0704"
+      ],
+      "properties": {},
+      "basis": "inferred",
+      "provenance": {
+        "origin": "source-scan",
+        "actor": "Example author",
+        "at": "2026-10-14T09:12:54Z"
+      },
+      "sourceKey": "compose:docker-compose.yml:public",
+      "evidenceIds": []
+    }
+  ],
+  "assets": [
+    {
+      "id": "ast_customer-personal-data-2c03",
+      "name": "Customer personal data",
+      "description": "Names, addresses and order history.",
+      "classification": "confidential",
+      "storedIn": [
+        "el_docker-compose-yml-d-190a"
+      ],
+      "basis": "observed",
+      "provenance": {
+        "origin": "human",
+        "actor": "Example author",
+        "at": "2026-10-14T09:12:54Z"
+      },
+      "evidenceIds": []
+    },
+    {
+      "id": "ast_stock-levels-095a",
+      "name": "Stock levels",
+      "description": "Drives fulfilment decisions.",
+      "classification": "internal",
+      "storedIn": [
+        "el_docker-compose-yml-c-1452"
+      ],
+      "basis": "observed",
+      "provenance": {
+        "origin": "human",
+        "actor": "Example author",
+        "at": "2026-10-14T09:12:54Z"
+      },
+      "evidenceIds": []
+    }
+  ],
+  "assumptions": [
+    {
+      "id": "asm_is-the-api-rate-limited-143f",
+      "kind": "question",
+      "text": "Is the API rate limited per customer?",
+      "status": "open",
+      "answer": "",
+      "relatesTo": [
+        {
+          "type": "element",
+          "id": "el_docker-compose-yml-a-0101"
+        }
+      ],
+      "rationale": "",
+      "notes": "",
+      "properties": {},
+      "basis": "hypothesis",
+      "provenance": {
+        "origin": "human",
+        "actor": "Example author",
+        "at": "2026-10-14T09:12:54Z"
+      },
+      "evidenceIds": []
+    },
+    {
+      "id": "asm_only-the-web-service-is-c85e",
+      "kind": "assumption",
+      "text": "Only the web service is published to clients; everything else is internal.",
+      "status": "open",
+      "answer": "",
+      "relatesTo": [
+        {
+          "type": "boundary",
+          "id": "tb_docker-compose-yml-n-1e6c"
+        }
+      ],
+      "rationale": "",
+      "notes": "",
+      "properties": {},
+      "basis": "hypothesis",
+      "provenance": {
+        "origin": "human",
+        "actor": "Example author",
+        "at": "2026-10-14T09:12:54Z"
+      },
+      "evidenceIds": []
+    },
+    {
+      "id": "asm_the-inventory-service-is-bb0c",
+      "kind": "assumption",
+      "text": "The inventory service is only reachable from the backend network, so it does not need to authenticate its callers.",
+      "status": "validated",
+      "answer": "",
+      "relatesTo": [
+        {
+          "type": "boundary",
+          "id": "tb_docker-compose-yml-n-1e6c"
+        },
+        {
+          "type": "element",
+          "id": "el_docker-compose-yml-i-008b"
+        }
+      ],
+      "rationale": "compose file shows no published ports for inventory (see cited evidence).",
+      "notes": "",
+      "properties": {},
+      "basis": "observed",
+      "provenance": {
+        "origin": "human",
+        "actor": "Example author",
+        "at": "2026-10-14T09:12:54Z"
+      },
+      "evidenceIds": [
+        "ev_docker-compose-yml-1-05e6"
+      ]
+    }
+  ],
+  "threats": [
+    {
+      "id": "thr_poisoned-stock-cache-val-c8f5",
+      "title": "Poisoned stock cache values",
+      "source": "attacker with write access to the cache",
+      "preconditions": [
+        "cache accepts unauthenticated writes"
+      ],
+      "action": "overwrite cached stock levels",
+      "consequence": "sales proceed on false stock data",
+      "goals": [
+        "integrity"
+      ],
+      "stride": [
+        "T"
+      ],
+      "targets": [
+        {
+          "type": "asset",
+          "id": "ast_stock-levels-095a"
+        },
+        {
+          "type": "element",
+          "id": "el_docker-compose-yml-c-1452"
+        }
+      ],
+      "likelihood": {
+        "level": "unknown",
+        "rationale": ""
+      },
+      "impact": {
+        "level": "medium",
+        "rationale": "Same consequence as stock manipulation."
+      },
+      "evidenceStrength": "none",
+      "evidenceRationale": "",
+      "status": "open",
+      "basis": "hypothesis",
+      "notes": "",
+      "tags": [],
+      "properties": {},
+      "provenance": {
+        "origin": "human",
+        "actor": "Example author",
+        "at": "2026-10-14T09:12:54Z"
+      },
+      "evidenceIds": []
+    },
+    {
+      "id": "thr_sql-injection-through-or-fbcc",
+      "title": "SQL injection through order search",
+      "source": "external client",
+      "preconditions": [
+        "user input reaches a query without parameterisation"
+      ],
+      "action": "submit crafted search terms to the API",
+      "consequence": "read or modification of customer and order data",
+      "goals": [
+        "confidentiality",
+        "integrity"
+      ],
+      "stride": [
+        "I",
+        "T"
+      ],
+      "targets": [
+        {
+          "type": "asset",
+          "id": "ast_customer-personal-data-2c03"
+        },
+        {
+          "type": "element",
+          "id": "el_docker-compose-yml-a-0101"
+        },
+        {
+          "type": "flow",
+          "id": "flow_docker-compose-yml-f-05d9"
+        }
+      ],
+      "likelihood": {
+        "level": "medium",
+        "rationale": "Search is public and takes free text."
+      },
+      "impact": {
+        "level": "high",
+        "rationale": "Direct path to personal data."
+      },
+      "evidenceStrength": "weak",
+      "evidenceRationale": "No source code was analysed here; stated from design knowledge.",
+      "status": "open",
+      "basis": "hypothesis",
+      "notes": "",
+      "tags": [],
+      "properties": {},
+      "provenance": {
+        "origin": "human",
+        "actor": "Example author",
+        "at": "2026-10-14T09:12:54Z"
+      },
+      "evidenceIds": []
+    },
+    {
+      "id": "thr_unauthorised-stock-manip-3305",
+      "title": "Unauthorised stock manipulation through the inventory service",
+      "source": "attacker with a foothold on the backend network",
+      "preconditions": [
+        "the inventory API accepts unauthenticated requests"
+      ],
+      "action": "send stock adjustment requests directly to the inventory service",
+      "consequence": "incorrect stock levels, leading to overselling or blocked sales",
+      "goals": [
+        "availability",
+        "integrity"
+      ],
+      "stride": [
+        "E",
+        "T"
+      ],
+      "targets": [
+        {
+          "type": "element",
+          "id": "el_docker-compose-yml-i-008b"
+        },
+        {
+          "type": "flow",
+          "id": "flow_docker-compose-yml-f-1b7a"
+        }
+      ],
+      "likelihood": {
+        "level": "low",
+        "rationale": "The service is not published and the backend network is not reachable from clients (assumption validated)."
+      },
+      "impact": {
+        "level": "medium",
+        "rationale": "Stock counts drive fulfilment but orders can be reconciled."
+      },
+      "evidenceStrength": "moderate",
+      "evidenceRationale": "Network exposure observed in configuration; absence of service-level authentication is stated by the team, not observed.",
+      "status": "open",
+      "basis": "inferred",
+      "notes": "",
+      "tags": [],
+      "properties": {},
+      "provenance": {
+        "origin": "human",
+        "actor": "Example author",
+        "at": "2026-10-14T09:12:54Z"
+      },
+      "evidenceIds": [
+        "ev_docker-compose-yml-1-05e6"
+      ]
+    }
+  ],
+  "mitigations": [
+    {
+      "id": "mit_keep-inventory-off-publi-b7cd",
+      "title": "Keep inventory off published ports; reachable only on the backend network",
+      "description": "No `ports:` entry for inventory; backend network is internal to the compose project.",
+      "status": "implemented",
+      "statusSetBy": {
+        "actorKind": "human",
+        "actor": "Example author",
+        "at": "2026-10-14T09:12:54Z"
+      },
+      "threatIds": [
+        "thr_unauthorised-stock-manip-3305"
+      ],
+      "assumptionIds": [
+        "asm_the-inventory-service-is-bb0c"
+      ],
+      "evidenceIds": [
+        "ev_docker-compose-yml-1-05e6"
+      ],
+      "verification": {
+        "plan": [
+          "From a host outside the compose network, confirm port 9000 is closed"
+        ],
+        "evidenceIds": [],
+        "note": ""
+      },
+      "notes": "",
+      "properties": {},
+      "provenance": {
+        "origin": "human",
+        "actor": "Example author",
+        "at": "2026-10-14T09:12:54Z"
+      }
+    },
+    {
+      "id": "mit_parameterised-queries-in-e565",
+      "title": "Parameterised queries in the order search",
+      "description": "",
+      "status": "in-progress",
+      "threatIds": [
+        "thr_sql-injection-through-or-fbcc"
+      ],
+      "assumptionIds": [],
+      "evidenceIds": [],
+      "verification": {
+        "plan": [],
+        "evidenceIds": [],
+        "note": ""
+      },
+      "notes": "",
+      "properties": {},
+      "provenance": {
+        "origin": "human",
+        "actor": "Example author",
+        "at": "2026-10-14T09:12:54Z"
+      }
+    }
+  ],
+  "evidence": [
+    {
+      "id": "ev_docker-compose-yml-1-05e6",
+      "kind": "config",
+      "summary": "inventory (docker-compose.yml:17)",
+      "sourceId": "src_northwind-v1-1f64cb",
+      "path": "docker-compose.yml",
+      "lineStart": 17,
+      "lineEnd": 22,
+      "quote": "    build: ./inventory\n    expose:\n      - \"9000\"\n    environment:\n      REDIS_URL: redis://cache:6379\n    networks: [backend]",
+      "revision": "ed6269d9370c0d88",
+      "contentHash": "52d513e4b952ddd7c1a7fe33a3a4c9ac36d930f370b89a14e2d7341866f1c780",
+      "stale": false,
+      "provenance": {
+        "origin": "source-scan",
+        "at": "2026-10-14T09:12:54Z"
+      }
+    },
+    {
+      "id": "ev_docker-compose-yml-1-0a71",
+      "kind": "config",
+      "summary": "Flow DATABASE_URL (docker-compose.yml:12)",
+      "sourceId": "src_northwind-v1-1f64cb",
+      "path": "docker-compose.yml",
+      "lineStart": 12,
+      "lineEnd": 12,
+      "quote": "      DATABASE_URL: postgres://shop:[REDACTED]@db:5432/shop",
+      "revision": "ed6269d9370c0d88",
+      "contentHash": "52d513e4b952ddd7c1a7fe33a3a4c9ac36d930f370b89a14e2d7341866f1c780",
+      "stale": false,
+      "provenance": {
+        "origin": "source-scan",
+        "at": "2026-10-14T09:12:54Z"
+      }
+    },
+    {
+      "id": "ev_docker-compose-yml-1-0f76",
+      "kind": "config",
+      "summary": "Flow INVENTORY_URL (docker-compose.yml:13)",
+      "sourceId": "src_northwind-v1-1f64cb",
+      "path": "docker-compose.yml",
+      "lineStart": 13,
+      "lineEnd": 13,
+      "quote": "      INVENTORY_URL: http://inventory:9000",
+      "revision": "ed6269d9370c0d88",
+      "contentHash": "52d513e4b952ddd7c1a7fe33a3a4c9ac36d930f370b89a14e2d7341866f1c780",
+      "stale": false,
+      "provenance": {
+        "origin": "source-scan",
+        "at": "2026-10-14T09:12:54Z"
+      }
+    },
+    {
+      "id": "ev_docker-compose-yml-1-1c43",
+      "kind": "config",
+      "summary": "api (docker-compose.yml:10)",
+      "sourceId": "src_northwind-v1-1f64cb",
+      "path": "docker-compose.yml",
+      "lineStart": 10,
+      "lineEnd": 15,
+      "quote": "    build: ./api\n    environment:\n      DATABASE_URL: postgres://shop:[REDACTED]@db:5432/shop\n      INVENTORY_URL: http://inventory:9000\n    networks: [frontend, backend]\n    depends_on: [db, inventory]",
+      "revision": "ed6269d9370c0d88",
+      "contentHash": "52d513e4b952ddd7c1a7fe33a3a4c9ac36d930f370b89a14e2d7341866f1c780",
+      "stale": false,
+      "provenance": {
+        "origin": "source-scan",
+        "at": "2026-10-14T09:12:54Z"
+      }
+    },
+    {
+      "id": "ev_docker-compose-yml-1-1ce1",
+      "kind": "config",
+      "summary": "Compose network \"backend\" (docker-compose.yml:10)",
+      "sourceId": "src_northwind-v1-1f64cb",
+      "path": "docker-compose.yml",
+      "lineStart": 10,
+      "lineEnd": 11,
+      "quote": "    build: ./api\n    environment:",
+      "revision": "ed6269d9370c0d88",
+      "contentHash": "52d513e4b952ddd7c1a7fe33a3a4c9ac36d930f370b89a14e2d7341866f1c780",
+      "stale": false,
+      "provenance": {
+        "origin": "source-scan",
+        "at": "2026-10-14T09:12:54Z"
+      }
+    },
+    {
+      "id": "ev_docker-compose-yml-2-0a56",
+      "kind": "config",
+      "summary": "cache (docker-compose.yml:29)",
+      "sourceId": "src_northwind-v1-1f64cb",
+      "path": "docker-compose.yml",
+      "lineStart": 29,
+      "lineEnd": 30,
+      "quote": "    image: redis:7\n    networks: [backend]",
+      "revision": "ed6269d9370c0d88",
+      "contentHash": "52d513e4b952ddd7c1a7fe33a3a4c9ac36d930f370b89a14e2d7341866f1c780",
+      "stale": false,
+      "provenance": {
+        "origin": "source-scan",
+        "at": "2026-10-14T09:12:54Z"
+      }
+    },
+    {
+      "id": "ev_docker-compose-yml-2-0e3f",
+      "kind": "config",
+      "summary": "Flow REDIS_URL (docker-compose.yml:21)",
+      "sourceId": "src_northwind-v1-1f64cb",
+      "path": "docker-compose.yml",
+      "lineStart": 21,
+      "lineEnd": 21,
+      "quote": "      REDIS_URL: redis://cache:6379",
+      "revision": "ed6269d9370c0d88",
+      "contentHash": "52d513e4b952ddd7c1a7fe33a3a4c9ac36d930f370b89a14e2d7341866f1c780",
+      "stale": false,
+      "provenance": {
+        "origin": "source-scan",
+        "at": "2026-10-14T09:12:54Z"
+      }
+    },
+    {
+      "id": "ev_docker-compose-yml-2-1d51",
+      "kind": "config",
+      "summary": "db (docker-compose.yml:24)",
+      "sourceId": "src_northwind-v1-1f64cb",
+      "path": "docker-compose.yml",
+      "lineStart": 24,
+      "lineEnd": 27,
+      "quote": "    image: postgres:16\n    volumes:\n      - dbdata:/var/lib/postgresql/data\n    networks: [backend]",
+      "revision": "ed6269d9370c0d88",
+      "contentHash": "52d513e4b952ddd7c1a7fe33a3a4c9ac36d930f370b89a14e2d7341866f1c780",
+      "stale": false,
+      "provenance": {
+        "origin": "source-scan",
+        "at": "2026-10-14T09:12:54Z"
+      }
+    },
+    {
+      "id": "ev_docker-compose-yml-4-05dc",
+      "kind": "config",
+      "summary": "web (docker-compose.yml:4)",
+      "sourceId": "src_northwind-v1-1f64cb",
+      "path": "docker-compose.yml",
+      "lineStart": 4,
+      "lineEnd": 8,
+      "quote": "    image: nginx:1.27\n    ports:\n      - \"443:8443\"\n    networks: [frontend]\n    depends_on: [api]",
+      "revision": "ed6269d9370c0d88",
+      "contentHash": "52d513e4b952ddd7c1a7fe33a3a4c9ac36d930f370b89a14e2d7341866f1c780",
+      "stale": false,
+      "provenance": {
+        "origin": "source-scan",
+        "at": "2026-10-14T09:12:54Z"
+      }
+    },
+    {
+      "id": "ev_docker-compose-yml-4-0922",
+      "kind": "config",
+      "summary": "Compose network \"frontend\" (docker-compose.yml:4)",
+      "sourceId": "src_northwind-v1-1f64cb",
+      "path": "docker-compose.yml",
+      "lineStart": 4,
+      "lineEnd": 5,
+      "quote": "    image: nginx:1.27\n    ports:",
+      "revision": "ed6269d9370c0d88",
+      "contentHash": "52d513e4b952ddd7c1a7fe33a3a4c9ac36d930f370b89a14e2d7341866f1c780",
+      "stale": false,
+      "provenance": {
+        "origin": "source-scan",
+        "at": "2026-10-14T09:12:54Z"
+      }
+    },
+    {
+      "id": "ev_docker-compose-yml-6-0efe",
+      "kind": "config",
+      "summary": "Flow published port (docker-compose.yml:6)",
+      "sourceId": "src_northwind-v1-1f64cb",
+      "path": "docker-compose.yml",
+      "lineStart": 6,
+      "lineEnd": 6,
+      "quote": "      - \"443:8443\"",
+      "revision": "ed6269d9370c0d88",
+      "contentHash": "52d513e4b952ddd7c1a7fe33a3a4c9ac36d930f370b89a14e2d7341866f1c780",
+      "stale": false,
+      "provenance": {
+        "origin": "source-scan",
+        "at": "2026-10-14T09:12:54Z"
+      }
+    },
+    {
+      "id": "ev_docker-compose-yml-8-1624",
+      "kind": "config",
+      "summary": "Flow depends_on (docker-compose.yml:8)",
+      "sourceId": "src_northwind-v1-1f64cb",
+      "path": "docker-compose.yml",
+      "lineStart": 8,
+      "lineEnd": 8,
+      "quote": "    depends_on: [api]",
+      "revision": "ed6269d9370c0d88",
+      "contentHash": "52d513e4b952ddd7c1a7fe33a3a4c9ac36d930f370b89a14e2d7341866f1c780",
+      "stale": false,
+      "provenance": {
+        "origin": "source-scan",
+        "at": "2026-10-14T09:12:54Z"
+      }
+    },
+    {
+      "id": "ev_tls-scan-of-web-tier-sho-1333",
+      "kind": "test-result",
+      "summary": "TLS scan of web tier showed TLS 1.2+ only (demonstration data)",
+      "stale": false,
+      "provenance": {
+        "origin": "human",
+        "actor": "Example author",
+        "at": "2026-10-14T09:12:54Z"
+      }
+    }
+  ],
+  "sources": [
+    {
+      "id": "src_northwind-v1-1f64cb",
+      "kind": "directory-snapshot",
+      "label": "northwind-v1",
+      "revision": "ed6269d9370c0d88",
+      "capturedAt": "2026-10-14T09:12:54Z",
+      "files": [
+        {
+          "path": "docker-compose.yml",
+          "hash": "52d513e4b952ddd7c1a7fe33a3a4c9ac36d930f370b89a14e2d7341866f1c780",
+          "bytes": 774
+        },
+        {
+          "path": "README.md",
+          "hash": "75e1f7039199af809c9437fd7d8f883435b51347940d7f755d3f8dd00056f4d6",
+          "bytes": 313
+        }
+      ]
+    }
+  ],
+  "proposals": [],
+  "reviewItems": [],
+  "decisions": [
+    {
+      "id": "dec_20261014091254-42afb4",
+      "subject": {
+        "type": "mitigation",
+        "id": "mit_parameterised-queries-in-e565"
+      },
+      "action": "set-status",
+      "rationale": "Work started.",
+      "actor": "Example author",
+      "at": "2026-10-14T09:12:54Z",
+      "detail": "status -> in-progress"
+    },
+    {
+      "id": "dec_20261014091254-553434",
+      "subject": {
+        "type": "mitigation",
+        "id": "mit_keep-inventory-off-publi-b7cd"
+      },
+      "action": "set-status",
+      "rationale": "Observed in the compose file at the baseline revision.",
+      "actor": "Example author",
+      "at": "2026-10-14T09:12:54Z",
+      "detail": "status -> implemented"
+    }
+  ],
+  "runs": [],
+  "view": {
+    "layout": {}
+  }
+}

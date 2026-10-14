@@ -17,14 +17,22 @@
     "test": "vitest run",
     "start": "node packages/cli/dist/bin.js serve",
     "dev:web": "npm run dev -w @threatweave/web",
-    "e2e": "node e2e/journey.mjs"
+    "e2e": "node e2e/journey.mjs",
+    "live:check": "tsx scripts/live-check.ts",
+    "eval:sim": "tsx evals/run.ts --adapter simulated --variant good && tsx evals/run.ts --adapter simulated --variant generic && tsx evals/run.ts --adapter simulated --variant fabricating",
+    "examples": "node scripts/build-examples.mjs"
   },
   "devDependencies": {
     "@types/node": "^22.10.0",
     "ajv": "^8.20.0",
     "ajv-formats": "^3.0.1",
-    "tsx": "^4.19.0",
+    "axe-core": "^4.14.0",
+    "playwright-core": "^1.64.0",
+    "tsx": "^4.23.15",
     "typescript": "^5.7.0",
     "vitest": "^3.0.0"
+  },
+  "bin": {
+    "threatweave": "packages/cli/dist/bin.js"
   }
 }

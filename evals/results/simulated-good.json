@@ -1,0 +1,73 @@
+{
+  "evalSetVersion": 1,
+  "adapter": "simulated",
+  "variant": "good",
+  "live": false,
+  "ran": "2026-10-14T09:16:30.365Z",
+  "totals": {
+    "expected": 9,
+    "found": 9,
+    "missed": 0,
+    "unsupported": 0,
+    "fabricatedCitations": 0
+  },
+  "cases": [
+    {
+      "id": "shop",
+      "kept": 3,
+      "discarded": [],
+      "found": [
+        "inventory-unauth",
+        "cleartext-internal",
+        "redis-open"
+      ],
+      "missed": [],
+      "unsupported": [],
+      "fabricated": [],
+      "usage": {
+        "inputTokens": null,
+        "outputTokens": null,
+        "costUsd": null,
+        "note": "The provider did not report token usage; nothing is estimated as actual usage. Cost unavailable: no prices configured."
+      }
+    },
+    {
+      "id": "cluster",
+      "kept": 3,
+      "discarded": [],
+      "found": [
+        "storefront-exposed",
+        "orders-cluster-access",
+        "cleartext-orders"
+      ],
+      "missed": [],
+      "unsupported": [],
+      "fabricated": [],
+      "usage": {
+        "inputTokens": null,
+        "outputTokens": null,
+        "costUsd": null,
+        "note": "The provider did not report token usage; nothing is estimated as actual usage. Cost unavailable: no prices configured."
+      }
+    },
+    {
+      "id": "runner",
+      "kept": 3,
+      "discarded": [],
+      "found": [
+        "host-compromise",
+        "artifacts-exposed",
+        "artifact-tamper"
+      ],
+      "missed": [],
+      "unsupported": [],
+      "fabricated": [],
+      "usage": {
+        "inputTokens": null,
+        "outputTokens": null,
+        "costUsd": null,
+        "note": "The provider did not report token usage; nothing is estimated as actual usage. Cost unavailable: no prices configured."
+      }
+    }
+  ]
+}

@@ -71,7 +71,8 @@ export function deriveReviewItems(before: Model, after: Model, changes: Change[]
         const r = reasoningFor(after, c, el.id, headline, 'exposure-increased');
         out.push(...r.items);
         const nb = r.nb;
-        for (const f of nb?.flows ?? [])
+        // Only flows INTO the component: those are what a newly reachable caller can use. Outbound flows are not flagged here.
+        for (const f of (nb?.flows ?? []).filter((x) => x.to === el.id))
           if (f.authenticated !== 'yes')
             out.push(item('exposure-increased:flow', { type: 'flow', id: f.id }, c,
               `${headline} Data flow ${labelOf(after, { type: 'flow', id: f.id })} reaches it with authentication "${f.authenticated}" and encryption "${f.encrypted}".`,

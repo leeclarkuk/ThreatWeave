@@ -1,0 +1,42 @@
+# DEMONSTRATION CONTENT (fictional): minimal Kubernetes manifests.
+apiVersion: apps/v1
+kind: Deployment
+metadata: { name: storefront, namespace: shop }
+spec:
+  selector: { matchLabels: { app: storefront } }
+  template:
+    metadata: { labels: { app: storefront } }
+    spec:
+      containers:
+        - name: storefront
+          image: example.invalid/storefront:1.0
+          env:
+            - { name: ORDERS_URL, value: "http://orders:8080" }
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata: { name: orders, namespace: shop }
+spec:
+  selector: { matchLabels: { app: orders } }
+  template:
+    metadata: { labels: { app: orders } }
+    spec:
+      containers:
+        - name: orders
+          image: example.invalid/orders:1.0
+---
+apiVersion: v1
+kind: Service
+metadata: { name: storefront, namespace: shop }
+spec:
+  type: LoadBalancer
+  selector: { app: storefront }
+  ports: [{ port: 443 }]
+---
+apiVersion: v1
+kind: Service
+metadata: { name: orders, namespace: shop }
+spec:
+  type: ClusterIP
+  selector: { app: orders }
+  ports: [{ port: 8080 }]

@@ -1,0 +1,22 @@
+# docker compose up --build   then open http://localhost:4317
+services:
+  threatweave:
+    build: .
+    ports:
+      # Published to loopback only: the app has no authentication.
+      - "127.0.0.1:4317:4317"
+    volumes:
+      - threatweave-data:/data
+      # Optional: let the Source tab analyse a local folder. Read-only.
+      # - /path/to/your/repo:/sources/repo:ro
+    environment:
+      THREATWEAVE_SOURCE_ROOTS: /sources
+      # Optional AI provider credentials. Leave unset for fully offline use.
+      # ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      # OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+    read_only: true
+    tmpfs: [/tmp]
+    security_opt: ["no-new-privileges:true"]
+    cap_drop: [ALL]
+volumes:
+  threatweave-data:

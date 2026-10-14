@@ -29,8 +29,10 @@ export class AnthropicAdapter implements ModelAdapter {
   private client: Anthropic | undefined;
   constructor(private cfg: AnthropicConfig) {
     this.modelId = cfg.model;
-    this.endpointHost = new URL(cfg.baseUrl ?? 'https://api.anthropic.com').host;
-    if (cfg.apiKey) this.client = new Anthropic({ apiKey: cfg.apiKey, ...(cfg.baseUrl ? { baseURL: cfg.baseUrl } : {}), maxRetries: 0 });
+    // Always pass an explicit base URL so the disclosed host is the host actually used (the SDK would otherwise honour ANTHROPIC_BASE_URL silently).
+    const base = cfg.baseUrl ?? 'https://api.anthropic.com';
+    this.endpointHost = new URL(base).host;
+    if (cfg.apiKey) this.client = new Anthropic({ apiKey: cfg.apiKey, baseURL: base, maxRetries: 0 });
   }
   capabilities(): AdapterCapabilities {
     return {
@@ -39,7 +41,7 @@ export class AnthropicAdapter implements ModelAdapter {
       notes: [
         'Requests use output_config.format with a simplified JSON schema; every response is re-validated locally against the full schema.',
         'Forced tool_choice is not used (rejected by current models). Temperature and thinking settings are omitted.',
-        'Contract-tested against a local simulated server only. Not live-verified in this repository: run `npm run test:live` with credentials to verify.',
+        'Contract-tested against a local simulated server only. Not live-verified in this repository: run `LIVE_MODEL=<id> npm run live:check -- anthropic` with credentials to verify.',
         'Cost is not computed unless you configure prices; the API reports tokens, not currency.',
       ],
     };

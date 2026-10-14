@@ -1,0 +1,28 @@
+ThreatWeave
+Licensed under the Apache License, Version 2.0 (see LICENSE).
+The copyright holder for original ThreatWeave code has not been recorded here.
+The project owner should add it before publishing.
+
+This product includes material from AWS Threat Composer
+(https://github.com/awslabs/threat-composer, commit 84f5628113ba8db6253e17c6b7afc86c6b4bc0eb),
+which is licensed under the Apache License, Version 2.0.
+
+  Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+
+Material reused from Threat Composer:
+  - third_party/threat-composer-v1.schema.json
+      Unmodified copy of schemas/threat-composer-v1.schema.json. Used only by tests to check
+      that fixtures and exports conform to the Threat Composer schema. Not shipped in the app.
+  - fixtures/tc/e2e-sample.tc.json
+      Unmodified copy of e2e/fixtures/data/sample-threat-model.tc.json.
+  - fixtures/tc/threat-composer-self-model.noimage.tc.json
+      Derived from packages/threat-composer/src/data/workspaceExamples/ThreatComposer.tc.json.
+      MODIFIED: the embedded base64 architecture and dataflow images were removed and the file was reformatted.
+  - fixtures/tc/reinforce2024-ex1.noimage.tc.json
+      Derived from workshop-examples/ThreatComposerWorkspace-reinforce2024-ex1.tc.json.
+      MODIFIED: the embedded base64 images were removed and the file was reformatted.
+  - fixtures/tc/synthetic-warnings.tc.json
+      Derived from the e2e sample with fields added by this project to exercise import warnings.
+
+No Threat Composer source code is included. The importer and exporter in packages/core/src/tc.ts
+were written against the published JSON Schema and the example files.

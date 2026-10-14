@@ -1,0 +1,90 @@
+{
+  "evalSetVersion": 1,
+  "adapter": "simulated",
+  "variant": "fabricating",
+  "live": false,
+  "ran": "2026-10-14T09:16:31.857Z",
+  "totals": {
+    "expected": 9,
+    "found": 4,
+    "missed": 5,
+    "unsupported": 2,
+    "fabricatedCitations": 7
+  },
+  "cases": [
+    {
+      "id": "shop",
+      "kept": 3,
+      "discarded": [],
+      "found": [
+        "inventory-unauth"
+      ],
+      "missed": [
+        "cleartext-internal",
+        "redis-open"
+      ],
+      "unsupported": [
+        "no-cloud-storage: \"S3 bucket exposure of order exports\""
+      ],
+      "fabricated": [
+        "Unauthenticated access to the inventory API: Dropped unverifiable evidence: docker-compose.yml:1-1 (quote not found in that file).",
+        "S3 bucket exposure of order exports: Dropped unverifiable evidence: terraform/s3.tf:1-1 (file was not part of the analysed input).",
+        "Hard-coded admin password in the web tier: Dropped unverifiable evidence: web/.env:1-1 (file was not part of the analysed input)."
+      ],
+      "usage": {
+        "inputTokens": null,
+        "outputTokens": null,
+        "costUsd": null,
+        "note": "The provider did not report token usage; nothing is estimated as actual usage. Cost unavailable: no prices configured."
+      }
+    },
+    {
+      "id": "cluster",
+      "kept": 2,
+      "discarded": [],
+      "found": [
+        "storefront-exposed",
+        "orders-cluster-access"
+      ],
+      "missed": [
+        "cleartext-orders"
+      ],
+      "unsupported": [],
+      "fabricated": [
+        "Orders reachable by any pod: Dropped unverifiable evidence: manifests.yaml:1-1 (quote not found in that file).",
+        "Storefront exposed: Dropped unverifiable evidence: manifests.yaml:32-32 (quote not found in that file)."
+      ],
+      "usage": {
+        "inputTokens": null,
+        "outputTokens": null,
+        "costUsd": null,
+        "note": "The provider did not report token usage; nothing is estimated as actual usage. Cost unavailable: no prices configured."
+      }
+    },
+    {
+      "id": "runner",
+      "kept": 2,
+      "discarded": [],
+      "found": [
+        "host-compromise"
+      ],
+      "missed": [
+        "artifacts-exposed",
+        "artifact-tamper"
+      ],
+      "unsupported": [
+        "db-not-published: \"Postgres exposed\""
+      ],
+      "fabricated": [
+        "Host compromise through the privileged runner: Dropped unverifiable evidence: docker-compose.yml:1-1 (quote not found in that file).",
+        "Postgres exposed: Dropped unverifiable evidence: docker-compose.yml:1-1 (quote not found in that file)."
+      ],
+      "usage": {
+        "inputTokens": null,
+        "outputTokens": null,
+        "costUsd": null,
+        "note": "The provider did not report token usage; nothing is estimated as actual usage. Cost unavailable: no prices configured."
+      }
+    }
+  ]
+}

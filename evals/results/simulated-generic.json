@@ -1,0 +1,87 @@
+{
+  "evalSetVersion": 1,
+  "adapter": "simulated",
+  "variant": "generic",
+  "live": false,
+  "ran": "2026-10-14T09:16:31.133Z",
+  "totals": {
+    "expected": 9,
+    "found": 2,
+    "missed": 7,
+    "unsupported": 7,
+    "fabricatedCitations": 0
+  },
+  "cases": [
+    {
+      "id": "shop",
+      "kept": 3,
+      "discarded": [
+        "\"Message queue poisoning\" references unknown \"@queue-service\"; not tied to this system"
+      ],
+      "found": [
+        "inventory-unauth"
+      ],
+      "missed": [
+        "cleartext-internal",
+        "redis-open"
+      ],
+      "unsupported": [
+        "no-sql-on-cache: \"SQL injection against the cache\"",
+        "no-upload: \"Malicious file upload to the web tier\"",
+        "discarded as ungrounded: \"Message queue poisoning\" references unknown \"@queue-service\"; not tied to this system"
+      ],
+      "fabricated": [],
+      "usage": {
+        "inputTokens": null,
+        "outputTokens": null,
+        "costUsd": null,
+        "note": "The provider did not report token usage; nothing is estimated as actual usage. Cost unavailable: no prices configured."
+      }
+    },
+    {
+      "id": "cluster",
+      "kept": 3,
+      "discarded": [],
+      "found": [
+        "storefront-exposed"
+      ],
+      "missed": [
+        "orders-cluster-access",
+        "cleartext-orders"
+      ],
+      "unsupported": [
+        "no-db: \"SQL injection in the orders database\"",
+        "no-privileged: \"Privileged container escape on storefront\""
+      ],
+      "fabricated": [],
+      "usage": {
+        "inputTokens": null,
+        "outputTokens": null,
+        "costUsd": null,
+        "note": "The provider did not report token usage; nothing is estimated as actual usage. Cost unavailable: no prices configured."
+      }
+    },
+    {
+      "id": "runner",
+      "kept": 2,
+      "discarded": [],
+      "found": [],
+      "missed": [
+        "host-compromise",
+        "artifacts-exposed",
+        "artifact-tamper"
+      ],
+      "unsupported": [
+        "db-not-published: \"Public database exposure\"",
+        "no-cloud: \"IAM role over-permission\""
+      ],
+      "fabricated": [],
+      "usage": {
+        "inputTokens": null,
+        "outputTokens": null,
+        "costUsd": null,
+        "note": "The provider did not report token usage; nothing is estimated as actual usage. Cost unavailable: no prices configured."
+      }
+    }
+  ]
+}

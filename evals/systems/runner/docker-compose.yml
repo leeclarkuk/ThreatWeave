@@ -1,0 +1,20 @@
+# EVALUATION FIXTURE (fictional): a CI runner with elevated host access.
+services:
+  runner:
+    image: example.invalid/ci-runner:2
+    privileged: true
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      ARTIFACT_URL: http://artifacts:8080
+    networks: [ci]
+  artifacts:
+    image: nginx:1.27
+    ports:
+      - "8080:80"
+    networks: [ci]
+  db:
+    image: postgres:16
+    networks: [ci]
+networks:
+  ci: {}

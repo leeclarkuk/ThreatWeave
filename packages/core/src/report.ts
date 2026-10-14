@@ -11,10 +11,17 @@ export function effectiveMitigationStatus(model: Model, m: Mitigation): string {
   return stale ? 'verified (evidence stale: re-verify)' : 'verified';
 }
 
+/**
+ * Readable threat statement. Preconditions may be fragments or sentences, so they are introduced
+ * as conditions rather than spliced into the grammar.
+ */
+export function grammar(source: string, preconditions: string[], action: string, consequence: string, targets = ''): string {
+  const cond = preconditions.length ? `, provided that ${preconditions.join(' and ')},` : '';
+  return `${source ? `A ${source}` : 'An unspecified actor'}${cond} can ${action || '(action not stated)'}, which leads to ${consequence || '(consequence not stated)'}${targets ? `, affecting ${targets}` : ''}.`;
+}
+
 export function threatStatement(model: Model, t: Threat): string {
-  const targets = t.targets.map((r) => labelOf(model, r)).join(', ');
-  const pre = t.preconditions.length ? ` ${t.preconditions.join(' and ')},` : '';
-  return `${t.source ? `A ${t.source}` : 'An unspecified actor'}${pre} can ${t.action || '(action not stated)'}, which leads to ${t.consequence || '(consequence not stated)'}${targets ? `, affecting ${targets}` : ''}.`;
+  return grammar(t.source, t.preconditions, t.action, t.consequence, t.targets.map((r) => labelOf(model, r)).join(', '));
 }
 
 const esc = (s: string) => s.replace(/\|/g, '\\|').replace(/\n/g, ' ');

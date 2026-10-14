@@ -1,0 +1,8 @@
+node_modules
+**/node_modules
+**/dist
+.git
+.threatweave-data
+e2e
+docs/screenshots
+*.tsbuildinfo

@@ -5,7 +5,23 @@
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
-  "exports": { ".": { "types": "./dist/index.d.ts", "default": "./dist/index.js" } },
-  "scripts": { "build": "tsc -b" },
-  "dependencies": {"@threatweave/core":"*","@threatweave/ai":"*","@threatweave/server":"*","@modelcontextprotocol/sdk":"^1.12.0"}
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc -b"
+  },
+  "dependencies": {
+    "@threatweave/core": "*",
+    "@threatweave/ai": "*",
+    "@threatweave/server": "*",
+    "@modelcontextprotocol/sdk": "^1.12.0",
+    "zod": "^4.0.0"
+  },
+  "bin": {
+    "threatweave": "dist/bin.js"
+  }
 }
