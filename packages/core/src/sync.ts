@@ -25,32 +25,59 @@ export interface SyncResult {
 
 const norm = (s: string) => s.replace(/\s+/g, ' ').trim();
 
-function evidenceFor(src: Source, d: DerivedEvidence, summary: string): Evidence {
+function evidenceFor(src: Source, d: DerivedEvidence, summary: string, anchor: string): Evidence {
   return {
-    id: derivedId('evidence', `${d.path}:${d.lineStart}-${d.lineEnd}:${d.fileHash}`),
-    kind: 'config', summary, sourceId: src.id, path: d.path, lineStart: d.lineStart, lineEnd: d.lineEnd, quote: d.quote,
+    id: derivedId('evidence', `${anchor}|${d.path}:${d.lineStart}-${d.lineEnd}:${d.fileHash}`),
+    kind: 'config', summary, anchor, sourceId: src.id, path: d.path, lineStart: d.lineStart, lineEnd: d.lineEnd, quote: d.quote,
     revision: src.revision, contentHash: d.fileHash, stale: false, provenance: { origin: 'source-scan', at: nowIso() },
   };
 }
 
-/** Mark evidence from earlier sources stale when the cited text is no longer present. */
-export function markStaleEvidence(model: Model, files: SourceFileInput[], currentSourceId: string): { model: Model; count: number } {
+/** What the current files say, per component, flow or boundary: normalised cited text keyed by source key. */
+export type FreshQuotes = Map<string, string[]>;
+export function freshQuotes(ex: Extraction): FreshQuotes {
+  const m: FreshQuotes = new Map();
+  for (const x of [...ex.elements, ...ex.flows, ...ex.boundaries]) m.set(x.sourceKey, x.evidence.map((e) => norm(e.quote)));
+  return m;
+}
+
+/**
+ * Mark evidence from earlier sources stale when what it cites no longer holds.
+ *  - Evidence with an anchor (captured for a specific component, flow or boundary) stays valid only if re-deriving that
+ *    same thing from the current files still yields the cited text. Moved text, renames and in-place edits are caught;
+ *    whitespace, comments and edits elsewhere are not.
+ *  - Evidence without an anchor (documents, accepted AI citations) is checked at file level: the file must exist and
+ *    still contain the quote somewhere. That is weaker: the quote could have moved to unrelated text.
+ * Staleness is sticky. Text returning does not clear it; a person re-affirms.
+ */
+export function markStaleEvidence(model: Model, files: SourceFileInput[], currentSourceId: string, fresh?: FreshQuotes): { model: Model; count: number } {
   const next = clone(model);
   const byPath = new Map(files.map((f) => [f.path, f]));
   let count = 0;
+  const mark = (ev: Evidence, why: string) => { ev.stale = true; ev.staleReason = why; count++; };
   for (const ev of next.evidence) {
     if (!ev.path || !ev.sourceId || ev.sourceId === currentSourceId || ev.stale) continue;
     if (!['config', 'source-file', 'document'].includes(ev.kind)) continue;
     const f = byPath.get(ev.path);
-    if (!f) { ev.stale = true; ev.staleReason = `${ev.path} is no longer present in the analysed source`; count++; continue; }
+    if (!f) { mark(ev, `${ev.path} is no longer present in the analysed source (deleted, renamed or moved)`); continue; }
     if (f.hash === ev.contentHash) continue;
+    const q = ev.quote ? norm(ev.quote) : '';
+    if (ev.anchor && fresh) {
+      const quotes = fresh.get(ev.anchor);
+      if (!quotes) { mark(ev, `what this was captured for (${ev.anchor.split(':').slice(2).join(':') || ev.anchor}) no longer exists in the source (renamed or removed)`); continue; }
+      if (q && !quotes.some((x) => x.includes(q))) { mark(ev, `the cited text no longer appears for ${ev.anchor.split(':').slice(2).join(':') || ev.anchor} in ${ev.path} (edited or moved)`); continue; }
+      continue;
+    }
     const redacted = norm(redactSecrets(f.content).text);
-    if (ev.quote && redacted.includes(norm(ev.quote))) continue; // file changed elsewhere; the cited text still exists
-    ev.stale = true;
-    ev.staleReason = ev.quote ? `the quoted text is no longer present in ${ev.path}` : `${ev.path} changed and no quote was captured to re-check`;
-    count++;
+    if (q && redacted.includes(q)) continue; // file level only: the cited text still exists somewhere in the file
+    mark(ev, q ? `the quoted text is no longer present in ${ev.path}` : `${ev.path} changed and no quote was captured to re-check`);
   }
   return { model: next, count };
+}
+
+/** Re-check anchored evidence against files without changing anything else. Used when a source is captured for analysis. */
+export function refreshEvidence(model: Model, files: SourceFileInput[], currentSourceId: string): { model: Model; count: number } {
+  return markStaleEvidence(model, files, currentSourceId, freshQuotes(extractTopology(files)));
 }
 
 export function buildSource(files: SourceFileInput[], o: { label: string; revision: string; vcsRevision?: string | undefined }): Source {
@@ -70,9 +97,9 @@ export function applyExtraction(model: Model, ex: Extraction, files: SourceFileI
   const idOfKey = (k: string) => derivedId('element', k);
 
   const evSet = new Map<string, Evidence>();
-  const toEv = (list: DerivedEvidence[], what: string) =>
+  const toEv = (list: DerivedEvidence[], what: string, anchor: string) =>
     list.map((d) => {
-      const e = evidenceFor(src, d, `${what} (${d.path}:${d.lineStart})`);
+      const e = evidenceFor(src, d, `${what} (${d.path}:${d.lineStart})`, anchor);
       evSet.set(e.id, e);
       return e.id;
     });
@@ -81,7 +108,7 @@ export function applyExtraction(model: Model, ex: Extraction, files: SourceFileI
   for (const d of ex.elements) {
     seenElementKeys.add(d.sourceKey);
     const id = idOfKey(d.sourceKey);
-    const evIds = toEv(d.evidence, d.name);
+    const evIds = toEv(d.evidence, d.name, d.sourceKey);
     const idx = next.elements.findIndex((e) => e.sourceKey === d.sourceKey);
     if (idx < 0) {
       next.elements.push({
@@ -114,7 +141,7 @@ export function applyExtraction(model: Model, ex: Extraction, files: SourceFileI
     if (!from || !to) continue;
     seenFlowKeys.add(d.sourceKey);
     const id = derivedId('flow', d.sourceKey);
-    const evIds = toEv(d.evidence, `Flow ${d.label || 'link'}`);
+    const evIds = toEv(d.evidence, `Flow ${d.label || 'link'}`, d.sourceKey);
     const cur = next.flows.find((f) => f.sourceKey === d.sourceKey);
     if (!cur)
       next.flows.push({
@@ -134,7 +161,7 @@ export function applyExtraction(model: Model, ex: Extraction, files: SourceFileI
   for (const d of ex.boundaries) {
     seenB.add(d.sourceKey);
     const members = d.memberKeys.map(resolveKey).filter((x): x is string => !!x);
-    const evIds = toEv(d.evidence, d.name);
+    const evIds = toEv(d.evidence, d.name, d.sourceKey);
     const cur = out.boundaries.find((b) => b.sourceKey === d.sourceKey);
     if (!cur)
       out.boundaries.push({
@@ -150,7 +177,7 @@ export function applyExtraction(model: Model, ex: Extraction, files: SourceFileI
   for (const b of [...out.boundaries]) if (b.sourceKey && !seenB.has(b.sourceKey) && b.provenance.origin === 'source-scan') out = removeEntity(out, 'boundary', b.id);
 
   for (const e of evSet.values()) if (!out.evidence.some((x) => x.id === e.id)) out.evidence.push(e);
-  const stale = markStaleEvidence(out, files, src.id);
+  const stale = markStaleEvidence(out, files, src.id, freshQuotes(ex));
   out = stale.model;
   // Drop scan evidence nothing references any more (never anything a person cited).
   const referenced = new Set<string>();

@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1
 # Local, single-user container. No cloud account needed. Not a hardened multi-tenant service.
-FROM node:22-slim AS build
+FROM node:22.22.0-slim AS build
 WORKDIR /app
 COPY package.json package-lock.json tsconfig.base.json ./
 COPY packages/core/package.json packages/core/
@@ -12,7 +12,7 @@ RUN npm ci
 COPY packages packages
 RUN npm run build && npm prune --omit=dev
 
-FROM node:22-slim
+FROM node:22.22.0-slim
 ENV NODE_ENV=production THREATWEAVE_DATA=/data THREATWEAVE_EXAMPLES=/app/examples THREATWEAVE_WEB_DIR=/app/packages/web/dist THREATWEAVE_BIND_ACK=1
 WORKDIR /app
 COPY --from=build /app/node_modules node_modules

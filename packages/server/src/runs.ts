@@ -1,4 +1,4 @@
-import { addIngested, finishRun, newEventId, startRun, buildSource, type Model } from '@threatweave/core';
+import { addIngested, finishRun, newEventId, startRun, buildSource, refreshEvidence, type Model } from '@threatweave/core';
 import { runAnalysis, type AnalysisFile } from '@threatweave/ai';
 import { UserError, type Store } from './store.js';
 import type { SettingsStore } from './settings.js';
@@ -43,6 +43,7 @@ export class Runs {
     const t = await this.store.update(projectId, (m) => {
       let next: Model = m;
       if (!next.sources.some((s) => s.id === source.id)) next = { ...next, sources: [...next.sources, source] };
+      next = refreshEvidence(next, inputs, source.id).model; // capturing a newer revision for analysis also invalidates evidence it contradicts
       return startRun(next, { id: runId, kind: 'ai-analysis', adapter: adapter.id, modelId: adapter.modelId, promptVersion: 'tw-analysis-1', sourceId: source.id, inputManifest: source.files.filter((f) => inputs.some((i) => i.path === f.path)), usage: { inputTokens: null, outputTokens: null, costUsd: null, note: '' }, proposalIds: [], notes: [] }).model;
     });
     const live: Live = { controller: new AbortController(), log: [] };

@@ -15,7 +15,7 @@ async function req<T>(method: string, path: string, body?: unknown, headers: Rec
   return json as T;
 }
 
-export interface ProjectSummary { id: string; name: string; example: boolean; updatedAt: string; counts: { elements: number; threats: number; mitigations: number; openReview: number; pendingProposals: number } }
+export interface ProjectSummary { id: string; name: string; example: boolean; updatedAt: string; broken?: { reason: string; hasBackup: boolean }; counts: { elements: number; threats: number; mitigations: number; openReview: number; pendingProposals: number } }
 export interface ScanResult { root: string; label: string; vcsRevision?: string; files: Array<{ path: string; bytes: number; hash: string; role: 'config' | 'document' }>; skipped: Array<{ path: string; reason: string }>; totalBytes: number; truncated: boolean; supported: string[]; unsupported: string[]; limits: Record<string, number> }
 export interface Disclosure { adapter: string; model: string; host: string; files: Array<{ path: string; bytes: number; role: string }>; totalBytes: number; redactions: number; note: string; capabilities: { notes: string[]; liveVerified: boolean; structuredOutput: string } }
 export interface SettingsPayload {
@@ -30,6 +30,7 @@ export const api = {
   create: (b: Record<string, unknown>) => req<{ id: string; warnings: Array<{ level: string; code: string; message: string; count: number }> }>('POST', '/api/projects', b),
   load: (id: string) => req<{ model: Model; etag: string; issues: Issue[] }>('GET', `/api/projects/${id}`),
   save: (id: string, model: Model, etag: string) => req<{ etag: string; issues: Issue[] }>('PUT', `/api/projects/${id}`, { model }, { 'if-match': etag }),
+  restore: (id: string) => req<{ ok: boolean }>('POST', `/api/projects/${id}/restore`, {}),
   remove: (id: string) => req<{ ok: boolean }>('DELETE', `/api/projects/${id}`),
   importPreview: (kind: 'tc' | 'native', data: unknown) => req<{ ok: boolean; error?: string; name?: string; stats?: Record<string, number>; warnings: Array<{ level: string; code: string; message: string; count: number }>; issues: Issue[] }>('POST', '/api/import/preview', { kind, data }),
   revisions: (id: string) => req<Array<{ id: string; size: number }>>('GET', `/api/projects/${id}/revisions`),

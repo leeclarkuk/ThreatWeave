@@ -261,6 +261,8 @@ export const Evidence = z.strictObject({
   /** Source revision at capture time (content digest or VCS revision). */
   revision: text(100).optional(),
   contentHash: text(100).optional(),
+  /** Source key of the component, flow or boundary this was captured for. Lets a rescan check the same thing still says it. */
+  anchor: text(200).optional(),
   stale: z.boolean().default(false),
   staleReason: text(500).optional(),
   provenance: Provenance,

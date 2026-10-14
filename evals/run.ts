@@ -1,6 +1,6 @@
 /**
  * Evaluate AI proposal quality on the versioned example set.
- *   npx tsx evals/run.ts --adapter simulated --variant good|generic|fabricating
+ *   npx tsx evals/run.ts --adapter simulated --variant good|generic|fabricating   (add --save to record under evals/results/)
  *   ANTHROPIC_API_KEY=... EVAL_MODEL=<id> npx tsx evals/run.ts --adapter anthropic
  *   EVAL_BASE_URL=http://127.0.0.1:11434/v1 EVAL_MODEL=<id> npx tsx evals/run.ts --adapter openai-compatible
  *
@@ -83,7 +83,7 @@ export async function evaluate(c: EvalCase, adapter: (c: EvalCase, model: Model,
 }
 
 async function main() {
-  const { values } = parseArgs({ options: { adapter: { type: 'string', default: 'simulated' }, variant: { type: 'string', default: 'good' }, out: { type: 'string' } } });
+  const { values } = parseArgs({ options: { adapter: { type: 'string', default: 'simulated' }, variant: { type: 'string', default: 'good' }, out: { type: 'string' }, save: { type: 'boolean', default: false } } });
   const kind = values.adapter!;
   const results: CaseResult[] = [];
   for (const c of CASES) {
@@ -107,8 +107,10 @@ async function main() {
     if (r.fabricated.length) console.log(`  fabricated:  ${r.fabricated.length} citation(s) failed verification`);
   }
   console.log(`\nTOTAL: found ${report.totals.found}/${expectedTotal}, missed ${report.totals.missed}, unsupported ${report.totals.unsupported}, fabricated citations ${report.totals.fabricatedCitations}`);
-  const file = values.out ?? join(ROOT, 'results', `${kind}${kind === 'simulated' ? `-${values.variant}` : ''}.json`);
-  writeFileSync(file, JSON.stringify(report, null, 2) + '\n');
-  console.log(`Wrote ${file}`);
+  if (values.save || values.out) {
+    const file = values.out ?? join(ROOT, 'results', `${kind}${kind === 'simulated' ? `-${values.variant}` : ''}.json`);
+    writeFileSync(file, JSON.stringify(report, null, 2) + '\n');
+    console.log(`Wrote ${file}`);
+  }
 }
 if (process.argv[1]?.endsWith('run.ts')) main().catch((e) => { console.error(e.message); process.exit(1); });

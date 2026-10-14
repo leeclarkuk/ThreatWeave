@@ -9,7 +9,7 @@
     "packages/*"
   ],
   "engines": {
-    "node": ">=20"
+    "node": ">=20.3.0"
   },
   "scripts": {
     "build": "npm run build -w @threatweave/core -w @threatweave/ai -w @threatweave/server -w @threatweave/cli -w @threatweave/web",
@@ -20,7 +20,9 @@
     "e2e": "node e2e/journey.mjs",
     "live:check": "tsx scripts/live-check.ts",
     "eval:sim": "tsx evals/run.ts --adapter simulated --variant good && tsx evals/run.ts --adapter simulated --variant generic && tsx evals/run.ts --adapter simulated --variant fabricating",
-    "examples": "node scripts/build-examples.mjs"
+    "examples": "node scripts/build-examples.mjs",
+    "check": "npm run build && npm test && npm run eval:sim && node packages/cli/dist/bin.js validate examples/northwind.threatweave.json",
+    "verify": "bash scripts/verify-clean-install.sh"
   },
   "devDependencies": {
     "@types/node": "^22.10.0",

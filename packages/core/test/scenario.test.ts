@@ -187,3 +187,54 @@ describe('serialisation of a synced model is stable', () => {
     expect(b).toBe(a);
   });
 });
+
+describe('evidence invalidation', () => {
+  const compose = (a: string, b: string) => `services:\n  alpha:\n    image: nginx\n${a}  beta:\n    image: nginx\n${b}`;
+  const PORTS = '    ports:\n      - "8080:80"\n';
+  const file = (content: string, hash: string): SourceFileInput => ({ path: 'docker-compose.yml', content, hash });
+  const base = (a: string, b: string) => {
+    let m = syncSource(emptyModel('Evidence'), [file(compose(a, b), 'h1')], { label: 'r1', revision: 'r1', actor: 't' }).model;
+    const alpha = m.elements.find((e) => e.name === 'alpha')!;
+    const ev = m.evidence.find((e) => alpha.evidenceIds.includes(e.id) && e.quote?.includes('8080'))!;
+    m = addEntity(m, 'threat', { title: 'Alpha is public', targets: [{ type: 'element', id: alpha.id }], evidenceIds: [ev.id] }, 'Lee').model;
+    return { m, evId: ev.id };
+  };
+  const stale = (m: Model, id: string) => m.evidence.find((e) => e.id === id)!.stale;
+
+  it('goes stale when the cited text moves to a different component, even though the text still exists in the file', () => {
+    const { m, evId } = base(PORTS, '');
+    expect(stale(m, evId)).toBe(false);
+    const r = syncSource(m, [file(compose('', PORTS), 'h2')], { label: 'r2', revision: 'r2', actor: 't' });
+    expect(stale(r.model, evId)).toBe(true);
+    expect(r.reviewItems.some((i) => i.target.type === 'threat' && i.code.startsWith('evidence-stale'))).toBe(true);
+  });
+  it('goes stale when the component is renamed', () => {
+    const { m, evId } = base(PORTS, '');
+    const renamed = compose(PORTS, '').replace('alpha:', 'gamma:');
+    expect(stale(syncSource(m, [file(renamed, 'h3')], { label: 'r3', revision: 'r3', actor: 't' }).model, evId)).toBe(true);
+  });
+  it('does NOT go stale for whitespace, comments or unrelated edits (no false alarms)', () => {
+    const { m, evId } = base(PORTS, '');
+    const edited = '# note\n' + compose(PORTS, '').replace('image: nginx\n    ports', 'image: nginx   \n    ports').replace('  beta:\n    image: nginx\n', '  beta:\n    image: redis\n');
+    const r = syncSource(m, [file(edited, 'h4')], { label: 'r4', revision: 'r4', actor: 't' });
+    expect(stale(r.model, evId)).toBe(false);
+  });
+  it('goes stale when the cited line is edited in place', () => {
+    const { m, evId } = base(PORTS, '');
+    const r = syncSource(m, [file(compose('    ports:\n      - "9090:80"\n', ''), 'h5')], { label: 'r5', revision: 'r5', actor: 't' });
+    expect(stale(r.model, evId)).toBe(true);
+  });
+  it('stays stale after the text returns until a person re-affirms it (never silently clears a judgement)', () => {
+    const { m, evId } = base(PORTS, '');
+    const gone = syncSource(m, [file(compose('', ''), 'h6')], { label: 'r6', revision: 'r6', actor: 't' }).model;
+    expect(stale(gone, evId)).toBe(true);
+    const back = syncSource(gone, [file(compose(PORTS, ''), 'h7')], { label: 'r7', revision: 'r7', actor: 't' }).model;
+    expect(stale(back, evId)).toBe(true);
+  });
+  it('a file that vanished makes its evidence stale; a file moved to a new path is reported as such', () => {
+    const { m, evId } = base(PORTS, '');
+    const r = syncSource(m, [{ path: 'deploy/docker-compose.yml', content: compose(PORTS, ''), hash: 'h1' }], { label: 'r8', revision: 'r8', actor: 't' });
+    expect(stale(r.model, evId)).toBe(true);
+    expect(r.model.evidence.find((e) => e.id === evId)!.staleReason).toMatch(/no longer present|moved/i);
+  });
+});

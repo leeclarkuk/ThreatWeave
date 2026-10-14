@@ -472,6 +472,8 @@ function EvidenceInspector({ id }: { id: string }) {
       <div style={{ marginTop: 12 }}>
         <TextField label="Summary" required multiline value={e.summary} onCommit={(v) => v.trim() && upd('evidence', id, { summary: v.trim() })} />
         {e.path !== undefined && <dl className="kv"><dt>File</dt><dd className="mono">{e.path}{e.lineStart ? `:${e.lineStart}${e.lineEnd && e.lineEnd !== e.lineStart ? `-${e.lineEnd}` : ''}` : ''}</dd><dt>Revision</dt><dd className="mono">{e.revision ?? 'unknown'}</dd><dt>Source</dt><dd>{src ? src.label : 'none'}</dd></dl>}
+        {e.path !== undefined && e.sourceId && (e.kind === 'config' || e.kind === 'source-file' || e.kind === 'document') && (
+          <p className="hint" style={{ margin: '6px 0' }}>{e.anchor ? `Checked against what the source says about ${e.anchor.split(':').slice(2).join(':') || e.anchor}: it goes stale if that text is edited or moves, or the component is renamed or removed.` : 'Checked at file level only: it goes stale if the file or the quoted text disappears, but not if the text moves to unrelated content.'} Staleness is cleared only by a person.</p>)}
         {e.quote && <blockquote style={{ margin: '8px 0', padding: '6px 10px', borderLeft: '3px solid var(--line-strong)', background: 'var(--surface-2)', fontFamily: 'var(--mono)', fontSize: 12, whiteSpace: 'pre-wrap', overflowWrap: 'anywhere' }}>{e.quote}</blockquote>}
       </div>
       <Section title="Cited by" count={citedBy.length}>

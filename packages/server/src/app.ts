@@ -110,6 +110,11 @@ export async function createApp(o: AppOptions) {
     return c.json({ etag: r.etag, issues: r.issues });
   });
 
+  app.post('/api/projects/:id/restore', async (c) => {
+    try { await store.restoreBackup(c.req.param('id')); } catch (e) { return c.json({ error: (e as Error).message }, 409); }
+    return c.json({ ok: true });
+  });
+
   app.delete('/api/projects/:id', async (c) => { await store.load(c.req.param('id')); await store.delete(c.req.param('id')); return c.json({ ok: true }); });
 
   /* ---------------- export / import ---------------- */

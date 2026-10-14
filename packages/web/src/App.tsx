@@ -55,7 +55,14 @@ function Home({ go }: { go: (id: string, tab?: string) => void }) {
           {projects === null && !error ? <p role="status">Loading…</p> : projects && projects.length === 0 ? (
             <Empty title="No models yet">Start a new one, import a Threat Composer or ThreatWeave file, or open the demonstration to see the review workflow.</Empty>
           ) : (
-            <ul className="projlist">{projects?.map((p) => (
+            <ul className="projlist">{projects?.map((p) => p.broken ? (
+              <li key={p.id} style={{ borderColor: 'var(--danger)' }}>
+                <div className="grow"><strong>{p.id}</strong> <Mark kind="danger">✕ Cannot be opened</Mark>
+                  <div className="hint">{p.broken.reason}</div>
+                  <div className="hint">{p.broken.hasBackup ? 'A valid backup of the previous version exists. The damaged file is kept as model.json.damaged.' : 'No valid backup exists. The file was not changed; inspect it with threatweave validate.'}</div></div>
+                {p.broken.hasBackup && <button className="small" onClick={async () => { try { await api.restore(p.id); toast('Restored the previous version.'); load(); } catch (e) { toast((e as Error).message); } }}>Restore previous version</button>}
+              </li>
+            ) : (
               <li key={p.id}>
                 <div className="grow"><a className="name" href={`#/p/${p.id}/${p.counts.openReview + p.counts.pendingProposals > 0 ? 'review' : 'architecture'}`}>{p.name}</a> {p.example && <Mark kind="info" dashed>Demonstration</Mark>}
                   <div className="hint">{p.counts.elements} components · {p.counts.threats} threats · {p.counts.mitigations} mitigations · updated {fmtTime(p.updatedAt.replace(/\.\d+Z$/, 'Z'))}</div></div>

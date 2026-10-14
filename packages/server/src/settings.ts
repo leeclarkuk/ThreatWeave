@@ -1,4 +1,5 @@
-import { chmod, mkdir, readFile, writeFile } from 'node:fs/promises';
+import { chmod, mkdir, readFile } from 'node:fs/promises';
+import { atomicWrite } from './store.js';
 import { dirname, join } from 'node:path';
 import { createAdapter, DEFAULT_BUDGETS, type AdapterSettings, type Budgets, type ModelAdapter } from '@threatweave/ai';
 
@@ -57,7 +58,7 @@ export class SettingsStore {
   }
   private async write(s: Stored) {
     await mkdir(dirname(this.file), { recursive: true, mode: 0o700 });
-    await writeFile(this.file, JSON.stringify(s, null, 2) + '\n', { mode: 0o600 });
+    await atomicWrite(this.file, JSON.stringify(s, null, 2) + '\n');
     await chmod(this.file, 0o600);
     this.cache = s;
   }

@@ -4,6 +4,7 @@ import { join } from 'node:path';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { createApp, scanDirectory, IngestError } from '../src/index.js';
+import { startMock, openaiOk } from '../../ai/test/mock-server.js';
 
 const H = { 'content-type': 'application/json', 'x-threatweave': '1', host: 'localhost:4317' };
 let dir: string;
@@ -185,5 +186,29 @@ describe('local-service hardening and credentials', () => {
     const exported = (await call(app, 'GET', `/api/projects/${id}/export?format=json`)).text;
     expect(exported).not.toContain('sk-ant-test');
     await call(app, 'PUT', '/api/settings/secret', { name: 'anthropic', value: '' });
+  });
+});
+
+describe('capturing a newer source for AI analysis also invalidates contradicted evidence', () => {
+  it('marks anchored evidence stale at the start of the run, before any provider answer', async () => {
+    const mock = await startMock([openaiOk(JSON.stringify({ summary: '', proposals: [] }), { prompt_tokens: 10, completion_tokens: 5 })]);
+    try {
+      const app = await boot();
+      const id = (await call(app, 'POST', '/api/projects', { example: 'northwind' })).json.id;
+      const base = (await call(app, 'GET', `/api/projects/${id}`)).json.model;
+      expect(base.evidence.some((e: any) => e.stale)).toBe(false);
+      const s = (await call(app, 'GET', '/api/settings')).json.settings;
+      s.ai.adapter = 'openai-compatible'; s.ai.openaiCompatible.baseUrl = `${mock.url}/v1`; s.ai.openaiCompatible.model = 'sim';
+      await call(app, 'PUT', '/api/settings', { settings: s });
+      const host = (await call(app, 'GET', '/api/settings')).json.active.host;
+      const r = await call(app, 'POST', `/api/projects/${id}/source/analyze`, { path: join(examples, 'repos/northwind-v2'), expectHost: host, confirmSend: true });
+      expect(r.status).toBe(202);
+      for (let i = 0; i < 50; i++) { const m = (await call(app, 'GET', `/api/projects/${id}`)).json.model; if (m.runs.at(-1)?.status !== 'running') break; await new Promise((x) => setTimeout(x, 100)); }
+      const after = (await call(app, 'GET', `/api/projects/${id}`)).json.model;
+      const stale = after.evidence.filter((e: any) => e.stale);
+      expect(stale.length).toBeGreaterThan(0);
+      expect(stale[0].staleReason).toMatch(/cited text|no longer/);
+      expect(after.elements.find((e: any) => e.name === 'inventory').exposure).toBe('internal'); // analysis alone never rewrites topology
+    } finally { await mock.close(); }
   });
 });

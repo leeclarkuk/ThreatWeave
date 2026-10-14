@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import { parseArgs } from 'node:util';
 import { resolve } from 'node:path';
-import { startServer } from '@threatweave/server';
+import { startServer, Store } from '@threatweave/server';
 import { CliError, cmdCompare, cmdSchema, cmdExportTc, cmdImportTc, cmdReport, cmdScan, cmdSync, cmdValidate } from './commands.js';
 import { startMcp } from './mcp.js';
 
@@ -16,6 +16,7 @@ Usage:
   threatweave report <model> [-o report.md]                         Markdown report
   threatweave scan <dir> [--json]                                   show what would be analysed; sends nothing anywhere
   threatweave sync <model> <dir> [-o out]                           deterministic source sync into a model file (no AI)
+  threatweave restore <project-id> [--data DIR]                    restore a damaged project from its last good backup
   threatweave schema                                                print the JSON Schema of the native model
   threatweave mcp [--data DIR]                                      MCP server on stdio (read tools and submit_proposals only)
 
@@ -47,6 +48,7 @@ async function main() {
     case 'import-tc': need(1, 'import-tc <file>'); res = await cmdImportTc(positionals[0]!, values.output, { json: !!values.json }); break;
     case 'export-tc': need(1, 'export-tc <model>'); res = await cmdExportTc(positionals[0]!, values.output); break;
     case 'report': need(1, 'report <model>'); res = await cmdReport(positionals[0]!, values.output); break;
+    case 'restore': need(1, 'restore <project-id>'); { const st = new Store(data); await st.restoreBackup(positionals[0]!); res = { code: 0, out: `Restored ${positionals[0]} from model.json.bak (the damaged file is kept as model.json.damaged).` }; } break;
     case 'schema': res = cmdSchema(); break;
     case 'scan': need(1, 'scan <dir>'); res = await cmdScan(positionals[0]!, { json: !!values.json }); break;
     case 'sync': need(2, 'sync <model> <dir>'); res = await cmdSync(positionals[0]!, positionals[1]!, values.output, { json: !!values.json }); break;

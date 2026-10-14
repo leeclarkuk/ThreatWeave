@@ -25,14 +25,29 @@ export function slug(input: string, max = 24): string {
   return s || 'item';
 }
 
+/**
+ * Determinism hooks for reproducible generated files (the bundled example) and tests. Production code never calls
+ * these: by default time is the wall clock and ids use the platform's secure random source.
+ */
+let fixedNow: string | null = null;
+let seeded: (() => number) | null = null;
+export function useFixedClock(iso: string | null) { fixedNow = iso; }
+export function useSeededRandom(seed: number | null) {
+  if (seed === null) { seeded = null; return; }
+  let a = seed >>> 0; // mulberry32
+  seeded = () => { a = (a + 0x6d2b79f5) >>> 0; let t = a; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
+}
+const clock = () => (fixedNow ? new Date(fixedNow) : new Date());
+
 function randomHex(bytes: number): string {
   const buf = new Uint8Array(bytes);
-  globalThis.crypto.getRandomValues(buf);
+  if (seeded) for (let i = 0; i < bytes; i++) buf[i] = Math.floor(seeded() * 256);
+  else globalThis.crypto.getRandomValues(buf);
   return Array.from(buf, (b) => b.toString(16).padStart(2, '0')).join('');
 }
 
 export function nowIso(): string {
-  return new Date().toISOString().replace(/\.\d{3}Z$/, 'Z');
+  return clock().toISOString().replace(/\.\d{3}Z$/, 'Z');
 }
 
 /** Readable, stable id: prefix + slug of the initial name + random suffix. Never changes on rename. */
@@ -42,7 +57,7 @@ export function newId(type: EntityType, name = ''): string {
 
 /** Time-ordered ids for events (runs, decisions, review items, proposals). */
 export function newEventId(type: EntityType): string {
-  const t = new Date().toISOString().replace(/[-:T]/g, '').slice(0, 14);
+  const t = clock().toISOString().replace(/[-:T]/g, '').slice(0, 14);
   return `${ID_PREFIXES[type]}_${t}-${randomHex(3)}`;
 }
 

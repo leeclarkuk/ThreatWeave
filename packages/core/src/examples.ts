@@ -6,7 +6,7 @@ import { addEntity, clone, emptyModel, setMitigationStatus } from './ops.js';
 import { syncSource } from './sync.js';
 import type { SourceFileInput } from './extract.js';
 import type { Model } from './model.js';
-import { derivedId } from './util.js';
+import { derivedId, nowIso } from './util.js';
 
 const AUTHOR = 'Example author';
 
@@ -80,7 +80,7 @@ export function buildNorthwindExample(filesV1: SourceFileInput[], revision: stri
     verification: { plan: ['From a host outside the compose network, confirm port 9000 is closed'], evidenceIds: [], note: '' },
   });
   m = setMitigationStatus(m, m1, 'implemented', { actor: AUTHOR }, { rationale: 'Observed in the compose file at the baseline revision.' });
-  const evTls = add('evidence', { kind: 'test-result', summary: 'TLS scan of web tier showed TLS 1.2+ only (demonstration data)', provenance: { origin: 'human', actor: AUTHOR, at: new Date().toISOString().replace(/\.\d{3}Z$/, 'Z') } });
+  const evTls = add('evidence', { kind: 'test-result', summary: 'TLS scan of web tier showed TLS 1.2+ only (demonstration data)', provenance: { origin: 'human', actor: AUTHOR, at: nowIso() } });
   const m2 = add('mitigation', { title: 'Parameterised queries in the order search', description: '', status: 'planned', threatIds: [t2], evidenceIds: [] });
   m = setMitigationStatus(m, m2, 'in-progress', { actor: AUTHOR }, { rationale: 'Work started.' });
   void a2; void evTls;
