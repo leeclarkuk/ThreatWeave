@@ -19,7 +19,7 @@ npm run verify      # all of the above from a clean clone of the COMMITTED tree,
 | Unit and integration tests | 77 passed: core 30 (Threat Composer import and export against the real schema; extraction; the change-aware scenario; mitigation invariants; serialisation; evidence invalidation), ai 18 (adapter contracts, failure modes, hostile content), server 19 (persistence, concurrency, crash and corruption handling, ingestion safety, local-service hardening, reproducible example), cli 10 (exit codes, scenario, MCP) |
 | Browser journey (`e2e/journey.ts`) | 38 of 38 steps passed |
 | Evaluation harness, simulated variants | grounded 9/9 found, 0 unsupported, 0 fabricated; generic 2/9, 7 unsupported; fabricating 4/9, 7 fabricated citations (see `docs/AI.md`; harness validation, not a model result) |
-| Clean-clone reproducibility (`npm run verify`) | Passed for commit `f78ae1a`: fresh clone of committed files only, `npm ci` (241 packages), build, 77 tests, simulated evaluation, example validation, then a production-only runtime (`npm ci --omit=dev`, built output only: health, static app, example creation, CLI) and a check that no tracked file changed during build or tests |
+| Clean-clone reproducibility (`npm run verify`) | Passed for commit `4a08f6f` (later commits change only this record): fresh clone of committed files only, `npm ci` (241 packages), build, 77 tests, simulated evaluation, example validation, then a production-only runtime (`npm ci --omit=dev`, built output only: health, static app, example creation, CLI) and a check that no tracked file changed during build or tests |
 
 ## Requirement to evidence
 | Requirement | Evidence |
